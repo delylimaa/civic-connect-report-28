@@ -14,13 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      historico_status: {
+        Row: {
+          alterado_em: string
+          alterado_por: string | null
+          id: string
+          ocorrencia_id: string
+          status_anterior: string | null
+          status_novo: string
+        }
+        Insert: {
+          alterado_em?: string
+          alterado_por?: string | null
+          id?: string
+          ocorrencia_id: string
+          status_anterior?: string | null
+          status_novo: string
+        }
+        Update: {
+          alterado_em?: string
+          alterado_por?: string | null
+          id?: string
+          ocorrencia_id?: string
+          status_anterior?: string | null
+          status_novo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_status_alterado_por_fkey"
+            columns: ["alterado_por"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historico_status_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocorrencias: {
+        Row: {
+          atualizado_em: string
+          categoria: string
+          criado_em: string
+          descricao: string
+          foto_url: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          status: string
+          titulo: string
+          usuario_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          categoria: string
+          criado_em?: string
+          descricao?: string
+          foto_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          status?: string
+          titulo: string
+          usuario_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          categoria?: string
+          criado_em?: string
+          descricao?: string
+          foto_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          status?: string
+          titulo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencias_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          criado_em: string
+          id: string
+          nome: string
+          perfil: string
+        }
+        Insert: {
+          criado_em?: string
+          id: string
+          nome?: string
+          perfil?: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          nome?: string
+          perfil?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_gestor: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

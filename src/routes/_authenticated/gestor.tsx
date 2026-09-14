@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/gestor")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: PainelGestor;
+  component: PainelGestor,
 });
 
 function Cartao({ titulo, valor, ajuda }: { titulo: string; valor: string; ajuda: string }) {

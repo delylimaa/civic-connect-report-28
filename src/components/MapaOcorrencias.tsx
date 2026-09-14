@@ -21,8 +21,9 @@ function pino(cor: string) {
 
 export default function MapaOcorrencias({ ocorrencias }: { ocorrencias: Ocorrencia[] }) {
   const comLocal = ocorrencias.filter((o) => o.latitude != null && o.longitude != null);
-  const centro: [number, number] = comLocal.length
-    ? [comLocal[0].latitude as number, comLocal[0].longitude as number]
+  const primeiro = comLocal[0];
+  const centro: [number, number] = primeiro
+    ? [primeiro.latitude as number, primeiro.longitude as number]
     : [-23.5505, -46.6333];
 
   return (

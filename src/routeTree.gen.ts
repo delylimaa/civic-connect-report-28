@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedChamadosRouteImport } from './routes/_authenticated/chamados'
+import { Route as AuthenticatedGestorRouteImport } from './routes/_authenticated/gestor'
+import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedReportarRouteImport } from './routes/_authenticated/reportar'
 
@@ -35,6 +37,16 @@ const AuthenticatedChamadosRoute = AuthenticatedChamadosRouteImport.update({
   path: '/chamados',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGestorRoute = AuthenticatedGestorRouteImport.update({
+  id: '/gestor',
+  path: '/gestor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMapaRoute = AuthenticatedMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -50,6 +62,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/chamados': typeof AuthenticatedChamadosRoute
+  '/gestor': typeof AuthenticatedGestorRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/reportar': typeof AuthenticatedReportarRoute
 }
@@ -57,6 +71,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/chamados': typeof AuthenticatedChamadosRoute
+  '/gestor': typeof AuthenticatedGestorRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/reportar': typeof AuthenticatedReportarRoute
 }
@@ -66,20 +82,26 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/chamados': typeof AuthenticatedChamadosRoute
+  '/_authenticated/gestor': typeof AuthenticatedGestorRoute
+  '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/reportar': typeof AuthenticatedReportarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/chamados' | '/painel' | '/reportar'
+  fullPaths:
+    '/' | '/auth' | '/chamados' | '/gestor' | '/mapa' | '/painel' | '/reportar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/chamados' | '/painel' | '/reportar'
+  to:
+    '/' | '/auth' | '/chamados' | '/gestor' | '/mapa' | '/painel' | '/reportar'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/chamados'
+    | '/_authenticated/gestor'
+    | '/_authenticated/mapa'
     | '/_authenticated/painel'
     | '/_authenticated/reportar'
   fileRoutesById: FileRoutesById
@@ -120,6 +142,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChamadosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/gestor': {
+      id: '/_authenticated/gestor'
+      path: '/gestor'
+      fullPath: '/gestor'
+      preLoaderRoute: typeof AuthenticatedGestorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mapa': {
+      id: '/_authenticated/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof AuthenticatedMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -139,12 +175,16 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedChamadosRoute: typeof AuthenticatedChamadosRoute
+  AuthenticatedGestorRoute: typeof AuthenticatedGestorRoute
+  AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedReportarRoute: typeof AuthenticatedReportarRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChamadosRoute: AuthenticatedChamadosRoute,
+  AuthenticatedGestorRoute: AuthenticatedGestorRoute,
+  AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedReportarRoute: AuthenticatedReportarRoute,
 }

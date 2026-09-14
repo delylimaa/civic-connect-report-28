@@ -98,7 +98,7 @@ function Reportar() {
       categoria,
     });
     if (!dados.success) {
-      toast.error(dados.error.issues[0].message ?? "Escolha uma categoria e preencha o título.");
+      toast.error(dados.error.issues[0]?.message ?? "Escolha uma categoria e preencha o título.");
       return;
     }
 

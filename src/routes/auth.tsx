@@ -60,7 +60,7 @@ function PaginaAuth() {
       senha: form.get("senha"),
     });
     if (!dados.success) {
-      toast.error(dados.error.issues[0].message);
+      toast.error(dados.error.issues[0]?.message ?? "Confira os campos.");
       return;
     }
     setCarregando(true);
@@ -87,7 +87,7 @@ function PaginaAuth() {
       perfil,
     });
     if (!dados.success) {
-      toast.error(dados.error.issues[0].message);
+      toast.error(dados.error.issues[0]?.message ?? "Confira os campos.");
       return;
     }
     setCarregando(true);

@@ -51,12 +51,22 @@ function Painel() {
         <h2 className="text-lg font-bold">Situação dos chamados</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {(Object.keys(STATUS) as StatusOcorrencia[]).map((status) => (
-            <div key={status} className="rounded-2xl bg-card p-4 card-suave">
-              {isLoading ? (
-                <Skeleton className="h-8 w-10" />
-              ) : (
-                <p className="text-3xl font-extrabold">{contagem(status)}</p>
-              )}
+            <div
+              key={status}
+              className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave"
+            >
+              <div className="flex items-center justify-between">
+                {isLoading ? (
+                  <Skeleton className="h-8 w-10" />
+                ) : (
+                  <p className="text-3xl font-extrabold">{contagem(status)}</p>
+                )}
+                <span
+                  className="size-2.5 rounded-full"
+                  style={{ background: STATUS[status].cor }}
+                  aria-hidden
+                />
+              </div>
               <p className="mt-1 text-xs font-semibold text-muted-foreground">
                 {STATUS[status].rotulo}
               </p>

@@ -160,7 +160,7 @@ function PainelGestor() {
         />
       </div>
 
-      <div className="rounded-2xl bg-card p-4 card-suave">
+      <div className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave">
         <h2 className="text-lg font-bold">Chamados por tipo de problema</h2>
         <div className="mt-4 h-64">
           {isLoading ? (
@@ -175,8 +175,21 @@ function PainelGestor() {
                   interval={0}
                 />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <Tooltip />
-                <Bar dataKey="quantidade" name="Chamados" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                <Tooltip
+                  cursor={{ fill: "oklch(1 0 0 / 6%)" }}
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.75rem",
+                    color: "var(--popover-foreground)",
+                  }}
+                />
+                <Bar
+                  dataKey="quantidade"
+                  name="Chamados"
+                  fill="var(--chart-1)"
+                  radius={[8, 8, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}

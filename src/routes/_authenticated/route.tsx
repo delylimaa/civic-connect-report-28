@@ -41,16 +41,20 @@ function LayoutApp() {
     : ITENS;
 
   return (
-    <div className="min-h-screen bg-background md:flex">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card p-5 md:flex">
+    <div className="relative min-h-screen bg-background md:flex">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 right-[-10%] size-96 rounded-full bg-primary/15 blur-[120px]"
+      />
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card/60 p-5 backdrop-blur-sm md:flex">
         <Link to="/painel" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground brilho-acao">
             <ShieldCheck className="size-5" aria-hidden />
           </span>
           <span className="text-base font-extrabold leading-tight">
             Alerta
             <br />
-            Cidadão
+            <span className="text-accent">Cidadão</span>
           </span>
         </Link>
 
@@ -59,8 +63,8 @@ function LayoutApp() {
             <Link
               key={item.para}
               to={item.para}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
-              activeProps={{ className: "bg-primary/10 text-primary" }}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              activeProps={{ className: "bg-primary/10 text-accent" }}
             >
               <item.icone className="size-5" aria-hidden />
               {item.rotulo}
@@ -81,12 +85,12 @@ function LayoutApp() {
       </aside>
 
       <div className="flex-1 pb-24 md:pb-0">
-        <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
+        <header className="flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur md:hidden">
           <span className="flex items-center gap-2 font-extrabold">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground brilho-acao">
               <ShieldCheck className="size-4" aria-hidden />
             </span>
-            Alerta Cidadão
+            Alerta <span className="text-accent">Cidadão</span>
           </span>
           <Button variant="ghost" size="sm" onClick={sair} aria-label="Sair da conta">
             <LogOut className="size-4" aria-hidden />
@@ -99,7 +103,7 @@ function LayoutApp() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/90 backdrop-blur-xl md:hidden"
         aria-label="Navegação"
       >
         {itens.map((item) => (
@@ -109,7 +113,7 @@ function LayoutApp() {
             className={cn(
               "flex flex-1 flex-col items-center gap-1 py-3 text-[11px] font-semibold text-muted-foreground transition-colors",
             )}
-            activeProps={{ className: "text-primary" }}
+            activeProps={{ className: "text-accent" }}
           >
             <item.icone className="size-5" aria-hidden />
             {item.rotulo}

@@ -55,6 +55,54 @@
   --color-surface-foreground: var(--surface-foreground);
   --shadow-card: var(--shadow-card);
   --shadow-elevado: var(--shadow-elevado);
+  --animate-surgir: surgir 0.5s cubic-bezier(0.22, 0.68, 0.3, 1) both;
+  --animate-flutuar: flutuar 6s ease-in-out infinite;
+  --animate-brilhar: brilhar 2.4s ease-in-out infinite;
+  --animate-abrir: abrir 0.35s ease-out both;
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes flutuar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes brilhar {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes abrir {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 900px;
+  }
 }
 
 :root {

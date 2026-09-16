@@ -234,3 +234,53 @@
   border: 2px solid oklch(0.9 0.01 240 / 0.9);
   box-shadow: 0 2px 8px oklch(0.05 0.01 260 / 0.6);
 }
+
+/* Interações dinâmicas */
+@utility elevar {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 0.68, 0.3, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card), var(--shadow-elevado);
+    border-color: oklch(0.71 0.17 161 / 0.45);
+  }
+}
+
+@utility pressionar {
+  transition: transform 0.15s ease;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@utility sublinhado-anim {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

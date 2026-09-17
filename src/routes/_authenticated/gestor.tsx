@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { BadgeStatus } from "@/components/BadgeStatus";
 import { FotoOcorrencia } from "@/components/FotoOcorrencia";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NumeroAnimado, Revelar } from "@/components/Revelar";
 import {
   Select,
   SelectContent,

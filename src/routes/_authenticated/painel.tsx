@@ -123,7 +123,7 @@ function Painel() {
                   </p>
                   <BadgeStatus status={o.status} className="mt-2" />
                 </div>
-              </article>
+              </Revelar>
             ))
           )}
         </div>

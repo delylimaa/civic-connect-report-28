@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { BadgeStatus } from "@/components/BadgeStatus";
 import { FotoOcorrencia } from "@/components/FotoOcorrencia";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NumeroAnimado, Revelar } from "@/components/Revelar";
 import {
   Select,
   SelectContent,
@@ -47,13 +48,23 @@ export const Route = createFileRoute("/_authenticated/gestor")({
   component: PainelGestor,
 });
 
-function Cartao({ titulo, valor, ajuda }: { titulo: string; valor: string; ajuda: string }) {
+function Cartao({
+  titulo,
+  valor,
+  ajuda,
+  atraso = 0,
+}: {
+  titulo: string;
+  valor: ReactNode;
+  ajuda: string;
+  atraso?: number;
+}) {
   return (
-    <div className="rounded-2xl bg-card p-4 card-suave">
+    <Revelar atraso={atraso} className="elevar rounded-2xl bg-card p-4 card-suave">
       <p className="text-sm text-muted-foreground">{titulo}</p>
       <p className="mt-1 text-3xl font-extrabold text-foreground">{valor}</p>
       <p className="mt-1 text-xs text-muted-foreground">{ajuda}</p>
-    </div>
+    </Revelar>
   );
 }
 
@@ -135,7 +146,7 @@ function PainelGestor() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Painel de gestão</h1>
         <p className="mt-1 text-muted-foreground">
           Visão geral da cidade e atualização da situação de cada chamado.
@@ -145,22 +156,24 @@ function PainelGestor() {
       <div className="grid gap-3 sm:grid-cols-3">
         <Cartao
           titulo="Chamados recebidos"
-          valor={String(metricas.total)}
+          valor={<NumeroAnimado valor={metricas.total} />}
           ajuda="Total registrado pelos moradores"
         />
         <Cartao
           titulo="Já resolvidos"
-          valor={`${metricas.percentual}%`}
+          atraso={110}
+          valor={<NumeroAnimado valor={metricas.percentual} sufixo="%" />}
           ajuda="Proporção de problemas concluídos"
         />
         <Cartao
           titulo="Tempo médio"
-          valor={`${metricas.media.toFixed(1)} dias`}
+          atraso={220}
+          valor={<NumeroAnimado valor={metricas.media} decimais={1} sufixo=" dias" />}
           ajuda="Do registro até a solução"
         />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave">
+      <Revelar className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave">
         <h2 className="text-lg font-bold">Chamados por tipo de problema</h2>
         <div className="mt-4 h-64">
           {isLoading ? (
@@ -189,12 +202,14 @@ function PainelGestor() {
                   name="Chamados"
                   fill="var(--chart-1)"
                   radius={[8, 8, 0, 0]}
+                  animationDuration={900}
+                  animationEasing="ease-out"
                 />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
-      </div>
+      </Revelar>
 
       <div className="space-y-3 rounded-2xl bg-card p-4 card-suave">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -249,8 +264,12 @@ function PainelGestor() {
           </p>
         ) : (
           <ul className="space-y-3">
-            {lista.map((o) => (
-              <li key={o.id} className="rounded-xl border border-border p-3">
+            {lista.map((o, indice) => (
+              <li
+                key={`${categoria}-${status}-${o.id}`}
+                style={{ animationDelay: `${Math.min(indice, 8) * 60}ms` }}
+                className="elevar animate-surgir rounded-xl border border-border p-3"
+              >
                 <div className="flex gap-3">
                   <FotoOcorrencia
                     caminho={o.foto_url}

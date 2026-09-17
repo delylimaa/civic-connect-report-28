@@ -7,6 +7,7 @@ import { FotoOcorrencia } from "@/components/FotoOcorrencia";
 import { TimelineStatus } from "@/components/TimelineStatus";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Revelar } from "@/components/Revelar";
 import { CATEGORIAS, formatarData, type Ocorrencia } from "@/lib/ocorrencias";
 import { cn } from "@/lib/utils";
 
@@ -25,12 +26,16 @@ export const Route = createFileRoute("/_authenticated/chamados")({
   component: Chamados,
 });
 
-function CardChamado({ ocorrencia }: { ocorrencia: Ocorrencia }) {
+function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atraso?: number }) {
   const [aberto, setAberto] = useState(false);
   const { data: historico, isLoading } = useHistorico(aberto ? ocorrencia.id : null);
 
   return (
-    <article className="overflow-hidden rounded-2xl bg-card card-suave">
+    <Revelar
+      atraso={atraso}
+      as="article"
+      className="elevar overflow-hidden rounded-2xl bg-card card-suave"
+    >
       <div className="flex gap-4 p-4">
         <FotoOcorrencia
           caminho={ocorrencia.foto_url}
@@ -65,11 +70,11 @@ function CardChamado({ ocorrencia }: { ocorrencia: Ocorrencia }) {
       </button>
 
       {aberto ? (
-        <div className="border-t border-border bg-surface/50 p-4">
+        <div className="animate-abrir overflow-hidden border-t border-border bg-surface/50 p-4">
           <TimelineStatus historico={historico ?? []} carregando={isLoading} />
         </div>
       ) : null}
-    </article>
+    </Revelar>
   );
 }
 
@@ -79,16 +84,19 @@ function Chamados() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-surgir flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold md:text-3xl">Meus chamados</h1>
           <p className="mt-1 text-muted-foreground">
             O andamento é atualizado sozinho, sem precisar recarregar a página.
           </p>
         </div>
-        <Button asChild>
-          <Link to="/reportar">
-            <PlusCircle className="size-5" aria-hidden />
+        <Button asChild className="pressionar">
+          <Link to="/reportar" className="group">
+            <PlusCircle
+              className="size-5 transition-transform duration-300 group-hover:rotate-90"
+              aria-hidden
+            />
             Novo chamado
           </Link>
         </Button>
@@ -106,8 +114,8 @@ function Chamados() {
         </p>
       ) : (
         <div className="space-y-3">
-          {lista.map((o) => (
-            <CardChamado key={o.id} ocorrencia={o} />
+          {lista.map((o, indice) => (
+            <CardChamado key={o.id} ocorrencia={o} atraso={Math.min(indice, 6) * 90} />
           ))}
         </div>
       )}

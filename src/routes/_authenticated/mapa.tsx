@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { MapaOcorrenciasLazy } from "@/components/MapaLazy";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NumeroAnimado, Revelar } from "@/components/Revelar";
 import { useOcorrencias } from "@/hooks/useOcorrencias";
 import {
   CATEGORIAS,
@@ -52,14 +53,14 @@ function Mapa() {
 
   return (
     <div className="space-y-5">
-      <div>
+      <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Mapa dos chamados</h1>
         <p className="mt-1 text-muted-foreground">
           Cada ponto é um problema registrado. A cor mostra em que situação ele está.
         </p>
       </div>
 
-      <div className="space-y-3 rounded-2xl bg-card p-4 card-suave">
+      <Revelar className="space-y-3 rounded-2xl bg-card p-4 card-suave">
         <div>
           <p className="mb-2 text-sm font-semibold">Tipo de problema</p>
           <div className="flex flex-wrap gap-2">
@@ -110,20 +111,28 @@ function Mapa() {
             ))}
           </div>
         </div>
-      </div>
+      </Revelar>
 
-      <div className="h-[65vh] min-h-96 overflow-hidden rounded-2xl bg-card card-suave">
+      <Revelar
+        atraso={120}
+        className="h-[65vh] min-h-96 overflow-hidden rounded-2xl bg-card card-suave"
+      >
         {isLoading ? (
           <Skeleton className="h-full w-full rounded-2xl" />
         ) : (
           <MapaOcorrenciasLazy ocorrencias={comLocal} />
         )}
-      </div>
+      </Revelar>
 
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {isLoading
-          ? "Carregando chamados..."
-          : `${comLocal.length} ${comLocal.length === 1 ? "chamado no mapa" : "chamados no mapa"}.`}
+        {isLoading ? (
+          "Carregando chamados..."
+        ) : (
+          <>
+            <NumeroAnimado valor={comLocal.length} className="font-bold text-accent" />{" "}
+            {comLocal.length === 1 ? "chamado no mapa" : "chamados no mapa"}.
+          </>
+        )}
       </p>
     </div>
   );

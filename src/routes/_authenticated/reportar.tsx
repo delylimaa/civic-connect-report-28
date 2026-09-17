@@ -140,14 +140,14 @@ function Reportar() {
 
   return (
     <form onSubmit={enviar} className="space-y-8">
-      <div>
+      <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Reportar problema</h1>
         <p className="mt-1 text-muted-foreground">
           Três passos simples: escolha o tipo, envie uma foto e confirme o local.
         </p>
       </div>
 
-      <fieldset className="space-y-3">
+      <fieldset className="animate-surgir space-y-3" style={{ animationDelay: "80ms" }}>
         <legend className="text-lg font-bold">1. Qual é o problema?</legend>
         <div className="grid gap-3 sm:grid-cols-2">
           {(Object.keys(CATEGORIAS) as Categoria[]).map((chave) => {
@@ -184,7 +184,7 @@ function Reportar() {
         </div>
       </fieldset>
 
-      <fieldset className="space-y-4">
+      <fieldset className="animate-surgir space-y-4" style={{ animationDelay: "160ms" }}>
         <legend className="text-lg font-bold">2. Conte o que está acontecendo</legend>
         <div className="space-y-1.5">
           <Label htmlFor="titulo">Título</Label>
@@ -246,7 +246,7 @@ function Reportar() {
         </div>
       </fieldset>
 
-      <fieldset className="space-y-3">
+      <fieldset className="animate-surgir space-y-3" style={{ animationDelay: "240ms" }}>
         <legend className="text-lg font-bold">3. Onde fica?</legend>
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="size-4" aria-hidden />
@@ -266,7 +266,7 @@ function Reportar() {
       </fieldset>
 
       <div className="sticky bottom-20 md:bottom-4">
-        <Button type="submit" size="lg" className="w-full" disabled={enviando}>
+        <Button type="submit" size="lg" className="pressionar w-full" disabled={enviando}>
           {enviando ? (
             <Loader2 className="size-5 animate-spin" aria-hidden />
           ) : (

@@ -47,13 +47,23 @@ export const Route = createFileRoute("/_authenticated/gestor")({
   component: PainelGestor,
 });
 
-function Cartao({ titulo, valor, ajuda }: { titulo: string; valor: string; ajuda: string }) {
+function Cartao({
+  titulo,
+  valor,
+  ajuda,
+  atraso = 0,
+}: {
+  titulo: string;
+  valor: ReactNode;
+  ajuda: string;
+  atraso?: number;
+}) {
   return (
-    <div className="rounded-2xl bg-card p-4 card-suave">
+    <Revelar atraso={atraso} className="elevar rounded-2xl bg-card p-4 card-suave">
       <p className="text-sm text-muted-foreground">{titulo}</p>
       <p className="mt-1 text-3xl font-extrabold text-foreground">{valor}</p>
       <p className="mt-1 text-xs text-muted-foreground">{ajuda}</p>
-    </div>
+    </Revelar>
   );
 }
 

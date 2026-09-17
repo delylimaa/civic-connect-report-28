@@ -202,12 +202,14 @@ function PainelGestor() {
                   name="Chamados"
                   fill="var(--chart-1)"
                   radius={[8, 8, 0, 0]}
+                  animationDuration={900}
+                  animationEasing="ease-out"
                 />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
-      </div>
+      </Revelar>
 
       <div className="space-y-3 rounded-2xl bg-card p-4 card-suave">
         <div className="grid gap-3 sm:grid-cols-2">

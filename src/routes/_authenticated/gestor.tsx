@@ -146,7 +146,7 @@ function PainelGestor() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Painel de gestão</h1>
         <p className="mt-1 text-muted-foreground">
           Visão geral da cidade e atualização da situação de cada chamado.
@@ -156,22 +156,24 @@ function PainelGestor() {
       <div className="grid gap-3 sm:grid-cols-3">
         <Cartao
           titulo="Chamados recebidos"
-          valor={String(metricas.total)}
+          valor={<NumeroAnimado valor={metricas.total} />}
           ajuda="Total registrado pelos moradores"
         />
         <Cartao
           titulo="Já resolvidos"
-          valor={`${metricas.percentual}%`}
+          atraso={110}
+          valor={<NumeroAnimado valor={metricas.percentual} sufixo="%" />}
           ajuda="Proporção de problemas concluídos"
         />
         <Cartao
           titulo="Tempo médio"
-          valor={`${metricas.media.toFixed(1)} dias`}
+          atraso={220}
+          valor={<NumeroAnimado valor={metricas.media} decimais={1} sufixo=" dias" />}
           ajuda="Do registro até a solução"
         />
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave">
+      <Revelar className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm card-suave">
         <h2 className="text-lg font-bold">Chamados por tipo de problema</h2>
         <div className="mt-4 h-64">
           {isLoading ? (

@@ -7,6 +7,7 @@ import { FotoOcorrencia } from "@/components/FotoOcorrencia";
 import { TimelineStatus } from "@/components/TimelineStatus";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Revelar } from "@/components/Revelar";
 import { CATEGORIAS, formatarData, type Ocorrencia } from "@/lib/ocorrencias";
 import { cn } from "@/lib/utils";
 
@@ -113,8 +114,8 @@ function Chamados() {
         </p>
       ) : (
         <div className="space-y-3">
-          {lista.map((o) => (
-            <CardChamado key={o.id} ocorrencia={o} />
+          {lista.map((o, indice) => (
+            <CardChamado key={o.id} ocorrencia={o} atraso={Math.min(indice, 6) * 90} />
           ))}
         </div>
       )}

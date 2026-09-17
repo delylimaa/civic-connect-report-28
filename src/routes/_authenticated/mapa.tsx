@@ -111,20 +111,28 @@ function Mapa() {
             ))}
           </div>
         </div>
-      </div>
+      </Revelar>
 
-      <div className="h-[65vh] min-h-96 overflow-hidden rounded-2xl bg-card card-suave">
+      <Revelar
+        atraso={120}
+        className="h-[65vh] min-h-96 overflow-hidden rounded-2xl bg-card card-suave"
+      >
         {isLoading ? (
           <Skeleton className="h-full w-full rounded-2xl" />
         ) : (
           <MapaOcorrenciasLazy ocorrencias={comLocal} />
         )}
-      </div>
+      </Revelar>
 
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {isLoading
-          ? "Carregando chamados..."
-          : `${comLocal.length} ${comLocal.length === 1 ? "chamado no mapa" : "chamados no mapa"}.`}
+        {isLoading ? (
+          "Carregando chamados..."
+        ) : (
+          <>
+            <NumeroAnimado valor={comLocal.length} className="font-bold text-accent" />{" "}
+            {comLocal.length === 1 ? "chamado no mapa" : "chamados no mapa"}.
+          </>
+        )}
       </p>
     </div>
   );

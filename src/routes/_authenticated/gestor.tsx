@@ -264,8 +264,12 @@ function PainelGestor() {
           </p>
         ) : (
           <ul className="space-y-3">
-            {lista.map((o) => (
-              <li key={o.id} className="rounded-xl border border-border p-3">
+            {lista.map((o, indice) => (
+              <li
+                key={`${categoria}-${status}-${o.id}`}
+                style={{ animationDelay: `${Math.min(indice, 8) * 60}ms` }}
+                className="elevar animate-surgir rounded-xl border border-border p-3"
+              >
                 <div className="flex gap-3">
                   <FotoOcorrencia
                     caminho={o.foto_url}

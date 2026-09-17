@@ -104,10 +104,12 @@ function Painel() {
               Você ainda não tem chamados. Assim que registrar um problema, ele aparece aqui.
             </p>
           ) : (
-            lista.slice(0, 3).map((o) => (
-              <article
+            lista.slice(0, 3).map((o, indice) => (
+              <Revelar
                 key={o.id}
-                className="flex items-center gap-4 rounded-2xl bg-card p-3 card-suave"
+                atraso={indice * 100}
+                as="article"
+                className="elevar flex items-center gap-4 rounded-2xl bg-card p-3 card-suave"
               >
                 <FotoOcorrencia
                   caminho={o.foto_url}

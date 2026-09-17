@@ -25,12 +25,16 @@ export const Route = createFileRoute("/_authenticated/chamados")({
   component: Chamados,
 });
 
-function CardChamado({ ocorrencia }: { ocorrencia: Ocorrencia }) {
+function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atraso?: number }) {
   const [aberto, setAberto] = useState(false);
   const { data: historico, isLoading } = useHistorico(aberto ? ocorrencia.id : null);
 
   return (
-    <article className="overflow-hidden rounded-2xl bg-card card-suave">
+    <Revelar
+      atraso={atraso}
+      as="article"
+      className="elevar overflow-hidden rounded-2xl bg-card card-suave"
+    >
       <div className="flex gap-4 p-4">
         <FotoOcorrencia
           caminho={ocorrencia.foto_url}

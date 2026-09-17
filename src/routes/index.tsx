@@ -3,7 +3,7 @@ import { Camera, MapPin, BellRing, ShieldCheck, ArrowRight, TrendingUp } from "l
 import heroCidade from "@/assets/hero-cidade.jpg";
 import { Button } from "@/components/ui/button";
 import { NumeroAnimado, Revelar } from "@/components/Revelar";
-import { useRolagem } from "@/hooks/useAnimacoes";
+import { useRevelar, useRolagem } from "@/hooks/useAnimacoes";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -259,7 +259,7 @@ function Landing() {
 }
 
 function BarraProgresso() {
-  const { ref, visivel } = useRevelarBarra();
+  const { ref, visivel } = useRevelar<HTMLDivElement>();
   return (
     <div ref={ref} className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
       <div
@@ -271,19 +271,3 @@ function BarraProgresso() {
     </div>
   );
 }
-
-function useRevelarBarra() {
-  return useRevelarInterno();
-}
-
-function useRevelarInterno() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return useRevelarHook();
-}
-
-function useRevelarHook() {
-  const { ref, visivel } = useRevelarImport<HTMLDivElement>();
-  return { ref, visivel };
-}
-
-import { useRevelar as useRevelarImport } from "@/hooks/useAnimacoes";

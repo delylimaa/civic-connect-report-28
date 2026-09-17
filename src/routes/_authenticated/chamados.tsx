@@ -69,11 +69,11 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
       </button>
 
       {aberto ? (
-        <div className="border-t border-border bg-surface/50 p-4">
+        <div className="animate-abrir overflow-hidden border-t border-border bg-surface/50 p-4">
           <TimelineStatus historico={historico ?? []} carregando={isLoading} />
         </div>
       ) : null}
-    </article>
+    </Revelar>
   );
 }
 
@@ -83,16 +83,19 @@ function Chamados() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-surgir flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold md:text-3xl">Meus chamados</h1>
           <p className="mt-1 text-muted-foreground">
             O andamento é atualizado sozinho, sem precisar recarregar a página.
           </p>
         </div>
-        <Button asChild>
-          <Link to="/reportar">
-            <PlusCircle className="size-5" aria-hidden />
+        <Button asChild className="pressionar">
+          <Link to="/reportar" className="group">
+            <PlusCircle
+              className="size-5 transition-transform duration-300 group-hover:rotate-90"
+              aria-hidden
+            />
             Novo chamado
           </Link>
         </Button>

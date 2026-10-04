@@ -50,24 +50,50 @@ function Reportar() {
   const [enviando, setEnviando] = useState(false);
   const inputFoto = useRef<HTMLInputElement>(null);
 
-  function pegarLocalAtual() {
+  async function pegarLocalAtual() {
     if (!("geolocation" in navigator)) {
       setBuscandoLocal(false);
       toast.info("Seu navegador não permite busca de localização. Toque no mapa para marcar o local.");
       return;
     }
+
+    // Se a permissão já foi negada, orienta o usuário em vez de tentar de novo.
+    try {
+      const permissao = await navigator.permissions?.query({ name: "geolocation" as PermissionName });
+      if (permissao?.state === "denied") {
+        setBuscandoLocal(false);
+        toast.warning(
+          "A localização está bloqueada neste navegador. Toque no cadeado da barra de endereço, permita a localização e tente de novo — ou arraste o pino no mapa.",
+          { duration: 8000 },
+        );
+        return;
+      }
+    } catch {
+      // Alguns navegadores não expõem a consulta de permissão; seguimos com a tentativa normal.
+    }
+
     setBuscandoLocal(true);
     navigator.geolocation.getCurrentPosition(
       (posicao) => {
         setLocal({ lat: posicao.coords.latitude, lng: posicao.coords.longitude });
         setLocalObtido(true);
         setBuscandoLocal(false);
+        toast.success("Localização encontrada!");
       },
-      () => {
+      (erro) => {
         setBuscandoLocal(false);
-        toast.info("Não conseguimos sua localização. Arraste o pino no mapa para marcar o local.");
+        if (erro.code === erro.PERMISSION_DENIED) {
+          toast.warning(
+            "Você negou o acesso à localização. Permita no cadeado da barra de endereço ou arraste o pino no mapa.",
+            { duration: 8000 },
+          );
+        } else if (erro.code === erro.TIMEOUT) {
+          toast.info("O GPS demorou demais. Tente novamente em área aberta ou arraste o pino no mapa.");
+        } else {
+          toast.info("Não conseguimos sua localização. Arraste o pino no mapa para marcar o local.");
+        }
       },
-      { enableHighAccuracy: true, timeout: 10000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   }
 

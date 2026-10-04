@@ -306,6 +306,10 @@ function Reportar() {
             Usar minha localização
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground" aria-live="polite">
+          Coordenadas: {local.lat.toFixed(6)}, {local.lng.toFixed(6)}
+          {localObtido ? " (GPS)" : " (padrão — ajuste o pino)"}
+        </p>
         <div className="h-72 overflow-hidden rounded-xl border border-border">
           <SeletorLocalizacaoLazy
             latitude={local.lat}

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Camera, Loader2, MapPin, Send, X } from "lucide-react";
+import { Camera, Loader2, LocateFixed, MapPin, Send, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SeletorLocalizacaoLazy } from "@/components/MapaLazy";
 import { Button } from "@/components/ui/button";
@@ -50,11 +50,13 @@ function Reportar() {
   const [enviando, setEnviando] = useState(false);
   const inputFoto = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  function pegarLocalAtual() {
     if (!("geolocation" in navigator)) {
       setBuscandoLocal(false);
+      toast.info("Seu navegador não permite busca de localização. Toque no mapa para marcar o local.");
       return;
     }
+    setBuscandoLocal(true);
     navigator.geolocation.getCurrentPosition(
       (posicao) => {
         setLocal({ lat: posicao.coords.latitude, lng: posicao.coords.longitude });
@@ -67,6 +69,11 @@ function Reportar() {
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
+  }
+
+  useEffect(() => {
+    pegarLocalAtual();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -256,6 +263,23 @@ function Reportar() {
               ? "Local encontrado. Se estiver errado, arraste o pino."
               : "Toque no mapa ou arraste o pino até o local exato."}
         </p>
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={pegarLocalAtual}
+            disabled={buscandoLocal}
+            className="pressionar"
+          >
+            {buscandoLocal ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <LocateFixed className="size-4" aria-hidden />
+            )}
+            Usar minha localização
+          </Button>
+        </div>
         <div className="h-72 overflow-hidden rounded-xl border border-border">
           <SeletorLocalizacaoLazy
             latitude={local.lat}

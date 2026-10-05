@@ -182,15 +182,35 @@ function Reportar() {
 
       <fieldset className="animate-surgir space-y-3" style={{ animationDelay: "80ms" }}>
         <legend className="text-lg font-bold">1. Qual é o problema?</legend>
+        {sugestao ? (
+          <button
+            type="button"
+            onClick={() => {
+              setCategoria(sugestao.categoria);
+              setSubcategoria(sugestao.subcategoria);
+            }}
+            className="flex w-full items-center gap-2 rounded-xl border border-accent/40 bg-accent/10 p-3 text-left text-sm"
+          >
+            <Sparkles className="size-4 shrink-0 text-accent" aria-hidden />
+            <span>
+              Mais comum perto deste local:{" "}
+              <strong>{rotuloOcorrencia(sugestao)}</strong> — toque para usar
+            </span>
+          </button>
+        ) : null}
         <div className="grid gap-3 sm:grid-cols-2">
-          {(Object.keys(CATEGORIAS) as Categoria[]).map((chave) => {
+          {CATEGORIA_CHAVES.map((chave) => {
             const item = CATEGORIAS[chave];
             const ativa = categoria === chave;
             return (
               <button
                 key={chave}
                 type="button"
-                onClick={() => setCategoria(chave)}
+                onClick={() => {
+                  setCategoria(chave);
+                  const subs = Object.keys(item.subs);
+                  setSubcategoria(subs.length === 1 ? subs[0] : null);
+                }}
                 aria-pressed={ativa}
                 className={cn(
                   "flex items-start gap-3 rounded-2xl border-2 bg-card p-4 text-left transition-all",
@@ -215,6 +235,41 @@ function Reportar() {
             );
           })}
         </div>
+
+        {categoria && categoria !== "outros" ? (
+          <div className="animate-abrir space-y-2">
+            <p className="text-sm font-semibold">Qual destes?</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(CATEGORIAS[categoria].subs).map(([chave, sub]) => (
+                <Button
+                  key={chave}
+                  type="button"
+                  size="sm"
+                  variant={subcategoria === chave ? "default" : "outline"}
+                  aria-pressed={subcategoria === chave}
+                  onClick={() => setSubcategoria(chave)}
+                >
+                  {sub.rotulo}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {categoria === "outros" ? (
+          <p className="text-sm text-muted-foreground">
+            Descreva o problema no passo 2 e toque em "Classificar com IA" — nós sugerimos o tipo certo.
+          </p>
+        ) : null}
+
+        {categoria && subcategoria ? (
+          <p className="text-xs text-muted-foreground">
+            Será encaminhado para{" "}
+            <strong className="text-accent">
+              {rotuloSecretaria(CATEGORIAS[categoria].subs[subcategoria]?.secretaria ?? null)}
+            </strong>
+          </p>
+        ) : null}
       </fieldset>
 
       <fieldset className="animate-surgir space-y-4" style={{ animationDelay: "160ms" }}>

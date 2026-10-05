@@ -283,6 +283,9 @@ function PainelGestor() {
                     <p className="text-xs text-muted-foreground">
                       {rotuloOcorrencia(o)} · {formatarData(o.criado_em)}
                     </p>
+                    <p className="text-xs font-semibold text-accent">
+                      Encaminhado para: {rotuloSecretaria(o.secretaria)}
+                    </p>
                     {o.descricao ? (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                         {o.descricao}

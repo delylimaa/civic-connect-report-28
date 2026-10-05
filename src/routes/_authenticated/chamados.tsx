@@ -8,7 +8,7 @@ import { TimelineStatus } from "@/components/TimelineStatus";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Revelar } from "@/components/Revelar";
-import { CATEGORIAS, formatarData, type Ocorrencia } from "@/lib/ocorrencias";
+import { CATEGORIAS, formatarData, type Ocorrencia , rotuloOcorrencia } from "@/lib/ocorrencias";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/chamados")({
@@ -45,7 +45,7 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
         <div className="min-w-0 flex-1">
           <p className="font-semibold">{ocorrencia.titulo}</p>
           <p className="text-xs text-muted-foreground">
-            {CATEGORIAS[ocorrencia.categoria].rotulo} · {formatarData(ocorrencia.criado_em)}
+            {rotuloOcorrencia(ocorrencia)} · {formatarData(ocorrencia.criado_em)}
           </p>
           {ocorrencia.descricao ? (
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">

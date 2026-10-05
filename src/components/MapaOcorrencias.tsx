@@ -8,7 +8,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 import { BadgeStatus } from "@/components/BadgeStatus";
 import { FotoOcorrencia } from "@/components/FotoOcorrencia";
-import { CATEGORIAS, STATUS, formatarData, type Ocorrencia } from "@/lib/ocorrencias";
+import { CATEGORIAS, STATUS, formatarData, type Ocorrencia , rotuloOcorrencia } from "@/lib/ocorrencias";
 
 function pino(cor: string) {
   return L.divIcon({
@@ -52,7 +52,7 @@ export default function MapaOcorrencias({ ocorrencias }: { ocorrencias: Ocorrenc
                   className="h-28 w-full rounded-lg"
                 />
                 <p className="text-sm font-semibold text-foreground">{o.titulo}</p>
-                <p className="text-xs text-muted-foreground">{CATEGORIAS[o.categoria].rotulo}</p>
+                <p className="text-xs text-muted-foreground">{rotuloOcorrencia(o)}</p>
                 {o.descricao ? (
                   <p className="text-xs text-foreground">{o.descricao}</p>
                 ) : null}

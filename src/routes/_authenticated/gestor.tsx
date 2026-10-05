@@ -20,6 +20,8 @@ import { useOcorrencias } from "@/hooks/useOcorrencias";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CATEGORIAS,
+  rotuloOcorrencia,
+  rotuloSecretaria,
   ORDEM_STATUS,
   STATUS,
   formatarData,
@@ -279,7 +281,10 @@ function PainelGestor() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">{o.titulo}</p>
                     <p className="text-xs text-muted-foreground">
-                      {CATEGORIAS[o.categoria].rotulo} · {formatarData(o.criado_em)}
+                      {rotuloOcorrencia(o)} · {formatarData(o.criado_em)}
+                    </p>
+                    <p className="text-xs font-semibold text-accent">
+                      Encaminhado para: {rotuloSecretaria(o.secretaria)}
                     </p>
                     {o.descricao ? (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">

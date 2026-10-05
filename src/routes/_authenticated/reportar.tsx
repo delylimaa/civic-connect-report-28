@@ -90,7 +90,7 @@ function Reportar() {
     }
     const topo = [...contagem.entries()].sort((a, b) => b[1] - a[1])[0];
     if (!topo) return null;
-    const [c, s] = topo[0].split("/");
+    const [c, s = ""] = topo[0].split("/");
     if (!CATEGORIAS[c as Categoria]?.subs[s]) return null;
     return { categoria: c as Categoria, subcategoria: s };
   }, [existentes, local]);
@@ -108,7 +108,7 @@ function Reportar() {
       if (r.categoria && r.subcategoria) {
         setCategoria(r.categoria as Categoria);
         setSubcategoria(r.subcategoria);
-        toast.success(`Classificado como: ${rotuloOcorrencia(r)}`);
+        toast.success(`Classificado como: ${rotuloOcorrencia({ categoria: r.categoria, subcategoria: r.subcategoria })}`);
       } else {
         setCategoria("outros");
         setSubcategoria("outro");
@@ -284,7 +284,7 @@ function Reportar() {
                 onClick={() => {
                   setCategoria(chave);
                   const subs = Object.keys(item.subs);
-                  setSubcategoria(subs.length === 1 ? subs[0] : null);
+                  setSubcategoria(subs.length === 1 ? (subs[0] ?? null) : null);
                 }}
                 aria-pressed={ativa}
                 className={cn(

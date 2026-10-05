@@ -17,7 +17,7 @@ export const classificarProblema = createServerFn({ method: "POST" })
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: {
-        "Lovable-API-Key": process.env.LOVABLE_API_KEY ?? "",
+        "Lovable-API-Key": process.env['LOVABLE_API_KEY'] ?? "",
         "X-Lovable-AIG-SDK": "fetch",
         "Content-Type": "application/json",
       },

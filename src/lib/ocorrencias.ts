@@ -143,7 +143,7 @@ export function rotuloOcorrencia(o: { categoria: string; subcategoria: string | 
 }
 
 export function rotuloSecretaria(chave: string | null) {
-  return chave ? (SECRETARIAS[chave] ?? chave) : SECRETARIAS.ouvidoria;
+  return chave ? (SECRETARIAS[chave] ?? chave) : SECRETARIAS["ouvidoria"];
 }
 
 export const STATUS: Record<

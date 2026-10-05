@@ -4,6 +4,7 @@ import heroCidade from "@/assets/hero-cidade.jpg";
 import { Button } from "@/components/ui/button";
 import { NumeroAnimado, Revelar } from "@/components/Revelar";
 import { useRevelar, useRolagem } from "@/hooks/useAnimacoes";
+import { CATEGORIAS, CATEGORIA_CHAVES } from "@/lib/ocorrencias";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -49,8 +50,13 @@ const PASSOS = [
   },
 ];
 
+const TOTAL_TIPOS = CATEGORIA_CHAVES.reduce(
+  (total, chave) => total + Object.keys(CATEGORIAS[chave].subs).length,
+  0,
+);
+
 const INDICADORES = [
-  { valor: 4, sufixo: " tipos", rotulo: "de problema atendidos" },
+  { valor: TOTAL_TIPOS, sufixo: " tipos", rotulo: "de problema atendidos" },
   { valor: 60, sufixo: "s", rotulo: "é o tempo médio do registro" },
   { valor: 100, sufixo: "%", rotulo: "do histórico com data e hora" },
 ];

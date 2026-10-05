@@ -199,7 +199,8 @@ function Reportar() {
     const dados = esquema.safeParse({
       titulo: form.get("titulo"),
       descricao: form.get("descricao") ?? "",
-      categoria,
+      categoria: categoria ?? undefined,
+      subcategoria: subcategoria ?? undefined,
     });
     if (!dados.success) {
       toast.error(dados.error.issues[0]?.message ?? "Escolha uma categoria e preencha o título.");
@@ -227,6 +228,9 @@ function Reportar() {
         titulo: dados.data.titulo,
         descricao: dados.data.descricao ?? "",
         categoria: dados.data.categoria,
+        subcategoria: dados.data.subcategoria,
+        secretaria:
+          CATEGORIAS[dados.data.categoria].subs[dados.data.subcategoria]?.secretaria ?? "ouvidoria",
         foto_url: caminhoFoto,
         latitude: local.lat,
         longitude: local.lng,
@@ -243,7 +247,7 @@ function Reportar() {
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-8">
+    <form ref={formRef} onSubmit={enviar} className="space-y-8">
       <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Reportar problema</h1>
         <p className="mt-1 text-muted-foreground">
@@ -364,6 +368,23 @@ function Reportar() {
             rows={4}
             placeholder="Perto de qual referência? Há risco para quem passa?"
           />
+          {categoria === "outros" || !categoria ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="pressionar"
+              onClick={classificarComIA}
+              disabled={classificando}
+            >
+              {classificando ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Sparkles className="size-4" aria-hidden />
+              )}
+              Classificar com IA
+            </Button>
+          ) : null}
         </div>
 
         <div className="space-y-2">

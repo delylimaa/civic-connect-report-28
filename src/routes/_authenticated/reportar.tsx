@@ -1,15 +1,24 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Camera, Loader2, LocateFixed, MapPin, Send, X } from "lucide-react";
+import { Camera, Loader2, LocateFixed, MapPin, Send, Sparkles, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SeletorLocalizacaoLazy } from "@/components/MapaLazy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CATEGORIAS, type Categoria } from "@/lib/ocorrencias";
+import { useOcorrencias } from "@/hooks/useOcorrencias";
+import { classificarProblema } from "@/lib/classificar.functions";
+import {
+  CATEGORIAS,
+  CATEGORIA_CHAVES,
+  rotuloOcorrencia,
+  rotuloSecretaria,
+  type Categoria,
+} from "@/lib/ocorrencias";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/reportar")({
@@ -24,8 +33,10 @@ export const Route = createFileRoute("/_authenticated/reportar")({
       { property: "og:title", content: "Reportar problema — Alerta Cidadão" },
       {
         property: "og:description",
-        content: "Registre buracos, iluminação ou lixo com foto e localização.",
+        content: "Registre problemas de saneamento, trânsito, limpeza e mais, com foto e local.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Reportar,
@@ -34,14 +45,30 @@ export const Route = createFileRoute("/_authenticated/reportar")({
 const esquema = z.object({
   titulo: z.string().trim().min(4, { message: "Escreva um título com pelo menos 4 letras" }).max(120),
   descricao: z.string().trim().max(1000).optional().default(""),
-  categoria: z.enum(["buraco_via", "iluminacao_publica", "lixo", "outros"]),
+  categoria: z.enum(CATEGORIA_CHAVES as [Categoria, ...Categoria[]], {
+    message: "Escolha o tipo de problema",
+  }),
+  subcategoria: z.string({ message: "Escolha qual é o problema específico" }).min(1),
 });
 
 const LOCAL_PADRAO = { lat: -23.5505, lng: -46.6333 };
 
+function distanciaKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * r;
+  const dLng = (b.lng - a.lng) * r;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
 function Reportar() {
   const navigate = useNavigate();
+  const classificar = useServerFn(classificarProblema);
+  const { data: existentes } = useOcorrencias();
   const [categoria, setCategoria] = useState<Categoria | null>(null);
+  const [subcategoria, setSubcategoria] = useState<string | null>(null);
+  const [classificando, setClassificando] = useState(false);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [local, setLocal] = useState(LOCAL_PADRAO);
@@ -49,6 +76,50 @@ function Reportar() {
   const [buscandoLocal, setBuscandoLocal] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const inputFoto = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Sugere o tipo mais registrado num raio de 1 km do local marcado.
+  const sugestao = useMemo(() => {
+    const contagem = new Map<string, number>();
+    for (const o of existentes ?? []) {
+      if (o.latitude == null || o.longitude == null || !o.subcategoria) continue;
+      if (o.categoria === "outros") continue;
+      if (distanciaKm(local, { lat: o.latitude, lng: o.longitude }) > 1) continue;
+      const k = `${o.categoria}/${o.subcategoria}`;
+      contagem.set(k, (contagem.get(k) ?? 0) + 1);
+    }
+    const topo = [...contagem.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (!topo) return null;
+    const [c, s] = topo[0].split("/");
+    if (!CATEGORIAS[c as Categoria]?.subs[s]) return null;
+    return { categoria: c as Categoria, subcategoria: s };
+  }, [existentes, local]);
+
+  async function classificarComIA() {
+    const form = formRef.current ? new FormData(formRef.current) : null;
+    const texto = `${form?.get("titulo") ?? ""}. ${form?.get("descricao") ?? ""}`.trim();
+    if (texto.length < 6) {
+      toast.info("Escreva o título ou os detalhes primeiro para a IA entender o problema.");
+      return;
+    }
+    setClassificando(true);
+    try {
+      const r = await classificar({ data: { texto } });
+      if (r.categoria && r.subcategoria) {
+        setCategoria(r.categoria as Categoria);
+        setSubcategoria(r.subcategoria);
+        toast.success(`Classificado como: ${rotuloOcorrencia(r)}`);
+      } else {
+        setCategoria("outros");
+        setSubcategoria("outro");
+        toast.info("Não identificamos um tipo específico. Vai para a triagem da Ouvidoria.");
+      }
+    } catch {
+      toast.error("A classificação automática falhou. Escolha o tipo manualmente.");
+    } finally {
+      setClassificando(false);
+    }
+  }
 
   async function pegarLocalAtual() {
     if (!("geolocation" in navigator)) {

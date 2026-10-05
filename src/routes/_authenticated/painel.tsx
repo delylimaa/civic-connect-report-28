@@ -7,7 +7,7 @@ import { FotoOcorrencia } from "@/components/FotoOcorrencia";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NumeroAnimado, Revelar } from "@/components/Revelar";
-import { CATEGORIAS, formatarData, STATUS, type StatusOcorrencia } from "@/lib/ocorrencias";
+import { CATEGORIAS, formatarData, STATUS, type StatusOcorrencia , rotuloOcorrencia } from "@/lib/ocorrencias";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -119,7 +119,7 @@ function Painel() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{o.titulo}</p>
                   <p className="text-xs text-muted-foreground">
-                    {CATEGORIAS[o.categoria].rotulo} · {formatarData(o.criado_em)}
+                    {rotuloOcorrencia(o)} · {formatarData(o.criado_em)}
                   </p>
                   <BadgeStatus status={o.status} className="mt-2" />
                 </div>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Home, MapPin, ListChecks, PlusCircle, BarChart3, LogOut, ShieldCheck } from "lucide-react";
+import { Home, MapPin, ListChecks, PlusCircle, BarChart3, LogOut, ShieldCheck, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePerfil } from "@/hooks/usePerfil";
 import { Button } from "@/components/ui/button";
@@ -73,10 +73,16 @@ function LayoutApp() {
         </nav>
 
         <div className="border-t border-border pt-4">
-          <p className="truncate text-sm font-semibold">{perfil?.nome ?? "Carregando..."}</p>
-          <p className="text-xs text-muted-foreground">
-            {gestor ? "Gestor municipal" : "Cidadão"}
-          </p>
+          <Link
+            to="/perfil"
+            className="block rounded-xl p-2 transition-colors hover:bg-secondary"
+            activeProps={{ className: "bg-primary/10" }}
+          >
+            <p className="truncate text-sm font-semibold">{perfil?.nome ?? "Carregando..."}</p>
+            <p className="text-xs text-muted-foreground">
+              {gestor ? "Gestor municipal" : "Cidadão"} · Editar perfil
+            </p>
+          </Link>
           <Button variant="outline" size="sm" className="mt-3 w-full" onClick={sair}>
             <LogOut className="size-4" aria-hidden />
             Sair
@@ -92,9 +98,16 @@ function LayoutApp() {
             </span>
             Alerta <span className="text-accent">Cidadão</span>
           </span>
-          <Button variant="ghost" size="sm" onClick={sair} aria-label="Sair da conta">
-            <LogOut className="size-4" aria-hidden />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/perfil" aria-label="Editar perfil">
+                <UserCog className="size-4" aria-hidden />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={sair} aria-label="Sair da conta">
+              <LogOut className="size-4" aria-hidden />
+            </Button>
+          </div>
         </header>
 
         <main className="mx-auto w-full max-w-5xl p-4 md:p-8">

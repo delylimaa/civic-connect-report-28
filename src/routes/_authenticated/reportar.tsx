@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Camera, Loader2, LocateFixed, MapPin, Send, Sparkles, X } from "lucide-react";
+import { Camera, Loader2, LocateFixed, MapPin, Search, Send, Sparkles, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SeletorLocalizacaoLazy } from "@/components/MapaLazy";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOcorrencias } from "@/hooks/useOcorrencias";
 import { classificarProblema } from "@/lib/classificar.functions";
+import { buscarEndereco, type ResultadoEndereco } from "@/lib/localizacao.functions";
 import {
   CATEGORIAS,
   CATEGORIA_CHAVES,
@@ -53,6 +54,8 @@ const esquema = z.object({
 
 const LOCAL_PADRAO = { lat: -23.5505, lng: -46.6333 };
 
+type FonteLocal = "gps" | "endereco" | "pino" | "padrao";
+
 function distanciaKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
   const r = Math.PI / 180;
   const dLat = (b.lat - a.lat) * r;
@@ -65,6 +68,7 @@ function distanciaKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 function Reportar() {
   const navigate = useNavigate();
   const classificar = useServerFn(classificarProblema);
+  const buscarNoServidor = useServerFn(buscarEndereco);
   const { data: existentes } = useOcorrencias();
   const [categoria, setCategoria] = useState<Categoria | null>(null);
   const [subcategoria, setSubcategoria] = useState<string | null>(null);

@@ -16,6 +16,7 @@ import { Route as AuthenticatedChamadosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedGestorRouteImport } from './routes/_authenticated/gestor'
 import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedReportarRouteImport } from './routes/_authenticated/reportar'
 
 const IndexRoute = IndexRouteImport.update({
@@ -52,6 +53,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReportarRoute = AuthenticatedReportarRouteImport.update({
   id: '/reportar',
   path: '/reportar',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/gestor': typeof AuthenticatedGestorRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/reportar': typeof AuthenticatedReportarRoute
 }
 export interface FileRoutesByTo {
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/gestor': typeof AuthenticatedGestorRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/reportar': typeof AuthenticatedReportarRoute
 }
 export interface FileRoutesById {
@@ -85,15 +93,30 @@ export interface FileRoutesById {
   '/_authenticated/gestor': typeof AuthenticatedGestorRoute
   '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/reportar': typeof AuthenticatedReportarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/chamados' | '/gestor' | '/mapa' | '/painel' | '/reportar'
+    | '/'
+    | '/auth'
+    | '/chamados'
+    | '/gestor'
+    | '/mapa'
+    | '/painel'
+    | '/perfil'
+    | '/reportar'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/chamados' | '/gestor' | '/mapa' | '/painel' | '/reportar'
+    | '/'
+    | '/auth'
+    | '/chamados'
+    | '/gestor'
+    | '/mapa'
+    | '/painel'
+    | '/perfil'
+    | '/reportar'
   id:
     | '__root__'
     | '/'
@@ -103,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated/gestor'
     | '/_authenticated/mapa'
     | '/_authenticated/painel'
+    | '/_authenticated/perfil'
     | '/_authenticated/reportar'
   fileRoutesById: FileRoutesById
 }
@@ -163,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reportar': {
       id: '/_authenticated/reportar'
       path: '/reportar'
@@ -178,6 +209,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGestorRoute: typeof AuthenticatedGestorRoute
   AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReportarRoute: typeof AuthenticatedReportarRoute
 }
 
@@ -186,6 +218,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGestorRoute: AuthenticatedGestorRoute,
   AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReportarRoute: AuthenticatedReportarRoute,
 }
 

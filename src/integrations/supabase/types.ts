@@ -118,18 +118,21 @@ export type Database = {
           id: string
           nome: string
           perfil: string
+          telefone: string | null
         }
         Insert: {
           criado_em?: string
           id: string
           nome?: string
           perfil?: string
+          telefone?: string | null
         }
         Update: {
           criado_em?: string
           id?: string
           nome?: string
           perfil?: string
+          telefone?: string | null
         }
         Relationships: []
       }

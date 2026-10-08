@@ -8,6 +8,7 @@ export type Perfil = {
   nome: string;
   perfil: "cidadao" | "gestor";
   criado_em: string;
+  telefone?: string | null;
 };
 
 export function useSessao() {
@@ -37,7 +38,7 @@ export function usePerfil() {
       if (!auth.user) return null;
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, nome, perfil, criado_em")
+        .select("id, nome, perfil, criado_em, telefone")
         .eq("id", auth.user.id)
         .maybeSingle();
       if (error) throw error;

@@ -1,0 +1,2 @@
+ALTER TABLE public.ocorrencias DROP CONSTRAINT ocorrencias_categoria_check;
+ALTER TABLE public.ocorrencias ADD CONSTRAINT ocorrencias_categoria_check CHECK (categoria IN ('infraestrutura','saneamento','mobilidade','meio_ambiente','ordem_publica','acessibilidade','outros'));

@@ -76,9 +76,14 @@ function Reportar() {
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [local, setLocal] = useState(LOCAL_PADRAO);
-  const [localObtido, setLocalObtido] = useState(false);
+  const [fonte, setFonte] = useState<FonteLocal>("padrao");
   const [buscandoLocal, setBuscandoLocal] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const [endereco, setEndereco] = useState("");
+  const [resultados, setResultados] = useState<ResultadoEndereco[]>([]);
+  const [buscandoEndereco, setBuscandoEndereco] = useState(false);
+  const [buscaFeita, setBuscaFeita] = useState(false);
+  const [erroBusca, setErroBusca] = useState<string | null>(null);
   const inputFoto = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -151,7 +156,7 @@ function Reportar() {
     navigator.geolocation.getCurrentPosition(
       (posicao) => {
         setLocal({ lat: posicao.coords.latitude, lng: posicao.coords.longitude });
-        setLocalObtido(true);
+        setFonte("gps");
         setBuscandoLocal(false);
         toast.success("Localização encontrada!");
       },
@@ -170,6 +175,41 @@ function Reportar() {
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
+  }
+
+  async function buscarPorEndereco() {
+    const consulta = endereco.trim();
+    if (consulta.length < 3) {
+      toast.info("Digite pelo menos 3 caracteres para buscar o endereço.");
+      return;
+    }
+    setBuscandoEndereco(true);
+    setBuscaFeita(false);
+    setErroBusca(null);
+    try {
+      const r = await buscarNoServidor({ data: { endereco: consulta } });
+      setResultados(r.resultados);
+      setErroBusca(r.erro);
+      setBuscaFeita(true);
+      if (r.resultados.length === 0 && !r.erro) {
+        toast.info("Nenhum endereço encontrado. Tente completar com bairro e cidade.");
+      }
+    } catch {
+      setResultados([]);
+      setErroBusca("A busca de endereços não respondeu agora. Tente de novo em instantes.");
+      setBuscaFeita(true);
+    } finally {
+      setBuscandoEndereco(false);
+    }
+  }
+
+  function escolherEndereco(item: ResultadoEndereco) {
+    setLocal({ lat: item.lat, lng: item.lng });
+    setFonte("endereco");
+    setEndereco(item.rotulo);
+    setResultados([]);
+    setBuscaFeita(false);
+    toast.success("Endereço localizado! Confira se o pino está no ponto certo.");
   }
 
   useEffect(() => {
@@ -436,10 +476,88 @@ function Reportar() {
           <MapPin className="size-4" aria-hidden />
           {buscandoLocal
             ? "Procurando sua localização..."
-            : localObtido
-              ? "Local encontrado. Se estiver errado, arraste o pino."
-              : "Toque no mapa ou arraste o pino até o local exato."}
+            : fonte === "padrao"
+              ? "Digite o endereço, use o GPS ou arraste o pino no mapa."
+              : "Local marcado. Se estiver errado, digite outro endereço ou arraste o pino."}
         </p>
+
+        <div className="space-y-2">
+          <Label htmlFor="endereco">Endereço do problema</Label>
+          <div className="flex gap-2">
+            <Input
+              id="endereco"
+              type="text"
+              autoComplete="off"
+              maxLength={160}
+              value={endereco}
+              onChange={(evento) => {
+                setEndereco(evento.target.value);
+                setResultados([]);
+                setBuscaFeita(false);
+                setErroBusca(null);
+              }}
+              onKeyDown={(evento) => {
+                if (evento.key === "Enter") {
+                  evento.preventDefault();
+                  void buscarPorEndereco();
+                }
+              }}
+              placeholder="Rua, número, bairro e cidade"
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={buscarPorEndereco}
+              disabled={buscandoEndereco}
+              className="pressionar shrink-0"
+            >
+              {buscandoEndereco ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Search className="size-4" aria-hidden />
+              )}
+              Buscar
+            </Button>
+          </div>
+
+          {resultados.length > 0 ? (
+            <ul
+              role="listbox"
+              aria-label="Endereços encontrados"
+              className="animate-abrir divide-y divide-border/60 overflow-hidden rounded-xl border border-border bg-card/60 backdrop-blur-sm"
+            >
+              {resultados.map((item) => (
+                <li key={`${item.lat},${item.lng}`}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={
+                      fonte === "endereco" && local.lat === item.lat && local.lng === item.lng
+                    }
+                    onClick={() => escolherEndereco(item)}
+                    className="flex w-full items-start gap-2 p-3 text-left text-sm transition-colors hover:bg-primary/10 focus-visible:bg-primary/10"
+                  >
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+                    <span>{item.rotulo}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : buscaFeita && !buscandoEndereco ? (
+            <p className="text-xs text-muted-foreground">
+              {erroBusca ??
+                "Nenhum endereço encontrado. Tente completar com bairro e cidade, ou marque o ponto no mapa."}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" aria-hidden />
+          ou
+          <span className="h-px flex-1 bg-border" aria-hidden />
+        </div>
+
         <div>
           <Button
             type="button"
@@ -459,13 +577,22 @@ function Reportar() {
         </div>
         <p className="text-xs text-muted-foreground" aria-live="polite">
           Coordenadas: {local.lat.toFixed(6)}, {local.lng.toFixed(6)}
-          {localObtido ? " (GPS)" : " (padrão — ajuste o pino)"}
+          {fonte === "gps"
+            ? " (GPS)"
+            : fonte === "endereco"
+              ? " (endereço informado)"
+              : fonte === "pino"
+                ? " (pino no mapa)"
+                : " (padrão — ajuste abaixo)"}
         </p>
         <div className="h-72 overflow-hidden rounded-xl border border-border">
           <SeletorLocalizacaoLazy
             latitude={local.lat}
             longitude={local.lng}
-            onChange={(lat, lng) => setLocal({ lat, lng })}
+            onChange={(lat, lng) => {
+              setLocal({ lat, lng });
+              setFonte("pino");
+            }}
           />
         </div>
       </fieldset>

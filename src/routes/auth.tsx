@@ -38,7 +38,6 @@ const esquemaEntrada = z.object({
 
 const esquemaCadastro = esquemaEntrada.extend({
   nome: z.string().trim().min(2, { message: "Informe seu nome" }).max(80),
-  perfil: z.enum(["cidadao", "gestor"]),
 });
 
 function PaginaAuth() {
@@ -46,7 +45,6 @@ function PaginaAuth() {
   const navigate = useNavigate();
   const [carregando, setCarregando] = useState(false);
   const [confirmarEmail, setConfirmarEmail] = useState(false);
-  const [perfil, setPerfil] = useState<"cidadao" | "gestor">("cidadao");
 
   useEffect(() => {
     if (session) navigate({ to: "/painel", replace: true });
@@ -84,7 +82,6 @@ function PaginaAuth() {
       nome: form.get("nome"),
       email: form.get("email"),
       senha: form.get("senha"),
-      perfil,
     });
     if (!dados.success) {
       toast.error(dados.error.issues[0]?.message ?? "Confira os campos.");
@@ -96,7 +93,7 @@ function PaginaAuth() {
       password: dados.data.senha,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { nome: dados.data.nome, perfil: dados.data.perfil },
+        data: { nome: dados.data.nome },
       },
     });
     setCarregando(false);
@@ -231,33 +228,9 @@ function PaginaAuth() {
                         placeholder="Mínimo de 6 caracteres"
                       />
                     </div>
-                    <fieldset className="space-y-2">
-                      <legend className="text-sm font-medium">Como você vai usar o app?</legend>
-                      <RadioGroup
-                        value={perfil}
-                        onValueChange={(valor) => setPerfil(valor as "cidadao" | "gestor")}
-                        className="gap-2"
-                      >
-                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                          <RadioGroupItem value="cidadao" className="mt-0.5" />
-                          <span>
-                            <span className="font-semibold">Sou morador</span>
-                            <span className="block text-muted-foreground">
-                              Quero reportar problemas e acompanhar respostas
-                            </span>
-                          </span>
-                        </label>
-                        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5">
-                          <RadioGroupItem value="gestor" className="mt-0.5" />
-                          <span>
-                            <span className="font-semibold">Sou da prefeitura</span>
-                            <span className="block text-muted-foreground">
-                              Quero atender chamados e ver os indicadores
-                            </span>
-                          </span>
-                        </label>
-                      </RadioGroup>
-                    </fieldset>
+                    <p className="text-xs text-muted-foreground">
+                      Contas da equipe da prefeitura são criadas pelo administrador ou gestor da secretaria.
+                    </p>
                     <Button type="submit" className="w-full" disabled={carregando}>
                       {carregando ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
                       Criar conta

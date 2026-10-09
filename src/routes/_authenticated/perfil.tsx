@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, KeyRound, Loader2, Mail, Phone, ShieldCheck, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { usePerfil, useSessao } from "@/hooks/usePerfil";
+import { ROTULO_PAPEL, usePerfil, useSessao } from "@/hooks/usePerfil";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,7 +183,7 @@ function PaginaPerfil() {
                 Tipo de conta
               </Label>
               <p className="rounded-xl border border-border/60 bg-secondary/50 px-3 py-2.5 text-sm">
-                {perfil?.perfil === "gestor" ? "Gestor municipal" : "Cidadão"}
+                {perfil?.papel ? ROTULO_PAPEL[perfil.papel] : "Cidadão"}
               </p>
             </div>
           </div>

@@ -1,8 +1,8 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Home, MapPin, ListChecks, PlusCircle, BarChart3, LogOut, ShieldCheck, UserCog } from "lucide-react";
+import { Home, MapPin, ListChecks, PlusCircle, BarChart3, Users, LogOut, ShieldCheck, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { usePerfil } from "@/hooks/usePerfil";
+import { usePerfil, ROTULO_PAPEL } from "@/hooks/usePerfil";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,13 @@ function LayoutApp() {
   }
 
   const itens = gestor
-    ? [...ITENS, { para: "/gestor", rotulo: "Gestão", icone: BarChart3 } as const]
+    ? [
+        ...ITENS,
+        { para: "/gestor", rotulo: "Gestão", icone: BarChart3 } as const,
+        ...(perfil?.papel !== "servidor"
+          ? [{ para: "/equipe", rotulo: "Equipe", icone: Users } as const]
+          : []),
+      ]
     : ITENS;
 
   return (
@@ -80,7 +86,7 @@ function LayoutApp() {
           >
             <p className="truncate text-sm font-semibold">{perfil?.nome ?? "Carregando..."}</p>
             <p className="text-xs text-muted-foreground">
-              {gestor ? "Gestor municipal" : "Cidadão"} · Editar perfil
+              {perfil?.papel ? ROTULO_PAPEL[perfil.papel] : "Cidadão"} · Editar perfil
             </p>
           </Link>
           <Button variant="outline" size="sm" className="mt-3 w-full" onClick={sair}>

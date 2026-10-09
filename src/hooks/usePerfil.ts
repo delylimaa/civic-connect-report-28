@@ -9,6 +9,14 @@ export type Perfil = {
   perfil: "cidadao" | "gestor";
   criado_em: string;
   telefone?: string | null;
+  papel: "admin" | "gestor" | "servidor" | null;
+  secretaria: string | null;
+};
+
+export const ROTULO_PAPEL: Record<string, string> = {
+  admin: "Administrador da prefeitura",
+  gestor: "Gestor de secretaria",
+  servidor: "Servidor municipal",
 };
 
 export function useSessao() {
@@ -42,7 +50,18 @@ export function usePerfil() {
         .eq("id", auth.user.id)
         .maybeSingle();
       if (error) throw error;
-      return (data as Perfil) ?? null;
+      if (!data) return null;
+      const { data: papel } = await supabase
+        .from("user_roles")
+        .select("role, secretaria")
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
+      return {
+        ...data,
+        perfil: papel ? "gestor" : "cidadao",
+        papel: papel?.role ?? null,
+        secretaria: papel?.secretaria ?? null,
+      } as Perfil;
     },
     staleTime: 60_000,
   });

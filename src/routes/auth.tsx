@@ -101,10 +101,15 @@ function PaginaAuth() {
     });
     setCarregando(false);
     if (error) {
+      const msg = error.message.toLowerCase();
       toast.error(
-        error.message.includes("already")
+        msg.includes("already")
           ? "Este e-mail já tem conta. Faça login."
-          : "Não foi possível criar a conta agora.",
+          : msg.includes("weak") || msg.includes("pwned") || error.code === "weak_password"
+            ? "Essa senha é muito comum e fácil de adivinhar. Escolha uma senha mais forte (misture letras, números e símbolos)."
+            : msg.includes("rate limit")
+              ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
+              : "Não foi possível criar a conta agora.",
       );
       return;
     }

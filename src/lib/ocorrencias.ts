@@ -17,7 +17,38 @@ export type Categoria =
   | "ordem_publica"
   | "acessibilidade"
   | "outros";
-export type StatusOcorrencia = "registrado" | "em_analise" | "em_atendimento" | "resolvido";
+export type StatusOcorrencia =
+  | "registrado"
+  | "em_analise"
+  | "em_atendimento"
+  | "aguardando_cidadao"
+  | "resolvido"
+  | "reaberto"
+  | "cancelado"
+  | "indeferido";
+
+export type Prioridade = "baixa" | "media" | "alta" | "urgente";
+
+export const PRIORIDADES: Record<Prioridade, { rotulo: string; dias: number }> = {
+  urgente: { rotulo: "Urgente", dias: 2 },
+  alta: { rotulo: "Alta", dias: 5 },
+  media: { rotulo: "Média", dias: 10 },
+  baixa: { rotulo: "Baixa", dias: 20 },
+};
+
+/** Situações que exigem justificativa (RN008/RN011). */
+export const EXIGE_JUSTIFICATIVA: StatusOcorrencia[] = [
+  "resolvido",
+  "cancelado",
+  "indeferido",
+  "aguardando_cidadao",
+];
+
+export const ENCERRADOS: StatusOcorrencia[] = ["resolvido", "cancelado", "indeferido"];
+
+export function atrasado(o: { prazo: string | null; status: StatusOcorrencia }) {
+  return Boolean(o.prazo) && !ENCERRADOS.includes(o.status) && new Date(o.prazo!).getTime() < Date.now();
+}
 
 export type Ocorrencia = {
   id: string;
@@ -33,6 +64,11 @@ export type Ocorrencia = {
   status: StatusOcorrencia;
   criado_em: string;
   atualizado_em: string;
+  protocolo: string;
+  atribuido_a: string | null;
+  prioridade: Prioridade;
+  prazo: string | null;
+  justificativa: string | null;
 };
 
 export type HistoricoStatus = {
@@ -42,6 +78,7 @@ export type HistoricoStatus = {
   status_novo: StatusOcorrencia;
   alterado_por: string | null;
   alterado_em: string;
+  observacao: string | null;
 };
 
 export const SECRETARIAS: Record<string, string> = {
@@ -151,14 +188,14 @@ export const STATUS: Record<
   { rotulo: string; explicacao: string; classe: string; cor: string }
 > = {
   registrado: {
-    rotulo: "Registrado",
-    explicacao: "Recebemos seu chamado",
+    rotulo: "Aberto",
+    explicacao: "Protocolo gerado",
     classe: "bg-registrado text-registrado-foreground",
     cor: "oklch(0.5 0.09 255)",
   },
   em_analise: {
-    rotulo: "Em análise",
-    explicacao: "A equipe está avaliando",
+    rotulo: "Em triagem",
+    explicacao: "Identificando a secretaria responsável",
     classe: "bg-analise text-analise-foreground",
     cor: "oklch(0.62 0.14 85)",
   },
@@ -168,11 +205,35 @@ export const STATUS: Record<
     classe: "bg-atendimento text-atendimento-foreground",
     cor: "oklch(0.62 0.16 50)",
   },
+  aguardando_cidadao: {
+    rotulo: "Aguardando morador",
+    explicacao: "A prefeitura pediu mais informações",
+    classe: "bg-analise text-analise-foreground",
+    cor: "oklch(0.7 0.15 300)",
+  },
   resolvido: {
-    rotulo: "Resolvido",
+    rotulo: "Concluído",
     explicacao: "Problema solucionado",
     classe: "bg-resolvido text-resolvido-foreground",
     cor: "oklch(0.55 0.13 163)",
+  },
+  reaberto: {
+    rotulo: "Reaberto",
+    explicacao: "O morador informou que o problema persiste",
+    classe: "bg-atendimento text-atendimento-foreground",
+    cor: "oklch(0.62 0.2 25)",
+  },
+  cancelado: {
+    rotulo: "Cancelado",
+    explicacao: "Chamado cancelado com justificativa",
+    classe: "bg-muted text-muted-foreground",
+    cor: "oklch(0.55 0.02 258)",
+  },
+  indeferido: {
+    rotulo: "Indeferido",
+    explicacao: "Solicitação não aceita, com motivo",
+    classe: "bg-muted text-muted-foreground",
+    cor: "oklch(0.45 0.02 258)",
   },
 };
 
@@ -180,7 +241,11 @@ export const ORDEM_STATUS: StatusOcorrencia[] = [
   "registrado",
   "em_analise",
   "em_atendimento",
+  "aguardando_cidadao",
   "resolvido",
+  "reaberto",
+  "cancelado",
+  "indeferido",
 ];
 
 export function formatarData(valor: string) {

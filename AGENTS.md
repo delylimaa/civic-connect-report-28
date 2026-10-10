@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Papéis da equipe (admin/gestor/servidor + secretaria) ficam em public.user_roles; profiles.perfil está obsoleto — evita autoelevação de privilégio pelo cadastro.
+- Visibilidade de chamados é feita por RLS (dono, admin, ou mesma secretaria) — nunca filtrar só no front.

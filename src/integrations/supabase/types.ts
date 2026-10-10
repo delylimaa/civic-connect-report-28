@@ -14,11 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditoria: {
+        Row: {
+          acao: string
+          criado_em: string
+          detalhes: Json
+          entidade: string
+          entidade_id: string | null
+          id: string
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: string
+          criado_em?: string
+          detalhes?: Json
+          entidade: string
+          entidade_id?: string | null
+          id?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: string
+          criado_em?: string
+          detalhes?: Json
+          entidade?: string
+          entidade_id?: string | null
+          id?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      avaliacoes: {
+        Row: {
+          comentario: string | null
+          criado_em: string
+          nota: number
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Insert: {
+          comentario?: string | null
+          criado_em?: string
+          nota: number
+          ocorrencia_id: string
+          usuario_id: string
+        }
+        Update: {
+          comentario?: string | null
+          criado_em?: string
+          nota?: number
+          ocorrencia_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: true
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comentarios: {
+        Row: {
+          autor_id: string
+          criado_em: string
+          id: string
+          ocorrencia_id: string
+          texto: string
+        }
+        Insert: {
+          autor_id: string
+          criado_em?: string
+          id?: string
+          ocorrencia_id: string
+          texto: string
+        }
+        Update: {
+          autor_id?: string
+          criado_em?: string
+          id?: string
+          ocorrencia_id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comentarios_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comentarios_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       historico_status: {
         Row: {
           alterado_em: string
           alterado_por: string | null
           id: string
+          observacao: string | null
           ocorrencia_id: string
           status_anterior: string | null
           status_novo: string
@@ -27,6 +136,7 @@ export type Database = {
           alterado_em?: string
           alterado_por?: string | null
           id?: string
+          observacao?: string | null
           ocorrencia_id: string
           status_anterior?: string | null
           status_novo: string
@@ -35,6 +145,7 @@ export type Database = {
           alterado_em?: string
           alterado_por?: string | null
           id?: string
+          observacao?: string | null
           ocorrencia_id?: string
           status_anterior?: string | null
           status_novo?: string
@@ -56,16 +167,66 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          criado_em: string
+          id: string
+          lida: boolean
+          mensagem: string
+          ocorrencia_id: string | null
+          titulo: string
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          lida?: boolean
+          mensagem?: string
+          ocorrencia_id?: string | null
+          titulo: string
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          lida?: boolean
+          mensagem?: string
+          ocorrencia_id?: string | null
+          titulo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_ocorrencia_id_fkey"
+            columns: ["ocorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "ocorrencias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ocorrencias: {
         Row: {
+          atribuido_a: string | null
           atualizado_em: string
           categoria: string
           criado_em: string
           descricao: string
           foto_url: string | null
           id: string
+          justificativa: string | null
           latitude: number | null
           longitude: number | null
+          prazo: string | null
+          prioridade: string
+          protocolo: string
           secretaria: string | null
           status: string
           subcategoria: string | null
@@ -73,14 +234,19 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          atribuido_a?: string | null
           atualizado_em?: string
           categoria: string
           criado_em?: string
           descricao?: string
           foto_url?: string | null
           id?: string
+          justificativa?: string | null
           latitude?: number | null
           longitude?: number | null
+          prazo?: string | null
+          prioridade?: string
+          protocolo?: string
           secretaria?: string | null
           status?: string
           subcategoria?: string | null
@@ -88,14 +254,19 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          atribuido_a?: string | null
           atualizado_em?: string
           categoria?: string
           criado_em?: string
           descricao?: string
           foto_url?: string | null
           id?: string
+          justificativa?: string | null
           latitude?: number | null
           longitude?: number | null
+          prazo?: string | null
+          prioridade?: string
+          protocolo?: string
           secretaria?: string | null
           status?: string
           subcategoria?: string | null
@@ -138,6 +309,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          ativo: boolean
           criado_em: string
           criado_por: string | null
           id: string
@@ -146,6 +318,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ativo?: boolean
           criado_em?: string
           criado_por?: string | null
           id?: string
@@ -154,6 +327,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ativo?: boolean
           criado_em?: string
           criado_por?: string | null
           id?: string
@@ -168,6 +342,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consultar_protocolo: {
+        Args: { _protocolo: string }
+        Returns: {
+          atualizado_em: string
+          categoria: string
+          criado_em: string
+          protocolo: string
+          secretaria: string
+          status: string
+          subcategoria: string
+        }[]
+      }
+      dias_prazo: { Args: { _prioridade: string }; Returns: string }
+      encaminhar_chamado: {
+        Args: { _id: string; _motivo: string; _secretaria: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -176,6 +367,10 @@ export type Database = {
         Returns: boolean
       }
       is_gestor: { Args: { _user_id: string }; Returns: boolean }
+      reabrir_chamado: {
+        Args: { _id: string; _motivo: string }
+        Returns: undefined
+      }
       secretaria_de: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {

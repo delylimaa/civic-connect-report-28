@@ -267,7 +267,7 @@ function Reportar() {
         caminhoFoto = caminho;
       }
 
-      const { error } = await supabase.from("ocorrencias").insert({
+      const { data: novo, error } = await supabase.from("ocorrencias").insert({
         usuario_id: auth.user.id,
         titulo: dados.data.titulo,
         descricao: dados.data.descricao ?? "",
@@ -278,10 +278,10 @@ function Reportar() {
         foto_url: caminhoFoto,
         latitude: local.lat,
         longitude: local.lng,
-      });
+      }).select("protocolo").single();
       if (error) throw error;
 
-      toast.success("Chamado registrado! Você pode acompanhar a resposta em Meus chamados.");
+      toast.success(`Chamado registrado! Protocolo ${novo?.protocolo ?? ""}. Acompanhe em Meus chamados.`, { duration: 8000 });
       navigate({ to: "/chamados" });
     } catch {
       toast.error("Não foi possível enviar agora. Tente novamente em instantes.");

@@ -38,6 +38,11 @@ export function TimelineStatus({
             </span>
             <p className="text-sm font-semibold text-foreground">{info.rotulo}</p>
             <p className="text-xs text-muted-foreground">{info.explicacao}</p>
+            {item.observacao ? (
+              <p className="mt-1 rounded-lg bg-muted/40 px-2 py-1 text-xs text-foreground">
+                {item.observacao}
+              </p>
+            ) : null}
             <p className="mt-0.5 text-xs text-muted-foreground">{formatarData(item.alterado_em)}</p>
           </li>
         );

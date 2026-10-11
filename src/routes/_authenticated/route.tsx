@@ -4,6 +4,7 @@ import { Home, MapPin, ListChecks, PlusCircle, BarChart3, Users, LogOut, ShieldC
 import { supabase } from "@/integrations/supabase/client";
 import { usePerfil, ROTULO_PAPEL } from "@/hooks/usePerfil";
 import { Button } from "@/components/ui/button";
+import { SinoNotificacoes } from "@/components/SinoNotificacoes";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -53,6 +54,7 @@ function LayoutApp() {
         className="pointer-events-none absolute -top-24 right-[-10%] size-96 rounded-full bg-primary/15 blur-[120px]"
       />
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card/60 p-5 backdrop-blur-sm md:flex">
+        <div className="flex items-start justify-between">
         <Link to="/painel" className="flex items-center gap-2">
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground brilho-acao">
             <ShieldCheck className="size-5" aria-hidden />
@@ -63,6 +65,8 @@ function LayoutApp() {
             <span className="text-accent">Cidadão</span>
           </span>
         </Link>
+        <SinoNotificacoes equipe={gestor} />
+        </div>
 
         <nav className="mt-8 flex flex-1 flex-col gap-1" aria-label="Menu principal">
           {itens.map((item) => (
@@ -105,6 +109,7 @@ function LayoutApp() {
             Alerta <span className="text-accent">Cidadão</span>
           </span>
           <div className="flex items-center gap-1">
+            <SinoNotificacoes equipe={gestor} />
             <Button variant="ghost" size="sm" asChild>
               <Link to="/perfil" aria-label="Editar perfil">
                 <UserCog className="size-4" aria-hidden />

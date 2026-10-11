@@ -12,7 +12,8 @@ import { Revelar } from "@/components/Revelar";
 import { ROTULO_PAPEL, usePerfil } from "@/hooks/usePerfil";
 import { supabase } from "@/integrations/supabase/client";
 import { SECRETARIAS } from "@/lib/ocorrencias";
-import { criarMembroEquipe } from "@/lib/equipe.functions";
+import { alterarAtivoMembro, criarMembroEquipe } from "@/lib/equipe.functions";
+import { formatarData } from "@/lib/ocorrencias";
 
 export const Route = createFileRoute("/_authenticated/equipe")({
   head: () => ({
@@ -34,6 +35,7 @@ function PaginaEquipe() {
   const { data: perfil, isLoading } = usePerfil();
   const queryClient = useQueryClient();
   const criar = useServerFn(criarMembroEquipe);
+  const alterarAtivo = useServerFn(alterarAtivoMembro);
   const admin = perfil?.papel === "admin";
   const [papel, setPapel] = useState<Papel>("servidor");
   const [secretaria, setSecretaria] = useState<string>("obras");
@@ -45,7 +47,7 @@ function PaginaEquipe() {
     queryFn: async () => {
       const { data: papeis, error } = await supabase
         .from("user_roles")
-        .select("user_id, role, secretaria, criado_em")
+        .select("user_id, role, secretaria, criado_em, ativo")
         .order("criado_em", { ascending: false });
       if (error) throw error;
       const ids = papeis.map((p) => p.user_id);
@@ -54,6 +56,36 @@ function PaginaEquipe() {
       return papeis.map((p) => ({ ...p, nome: nomes.get(p.user_id) ?? "—" }));
     },
   });
+
+  const auditoria = useQuery({
+    queryKey: ["auditoria"],
+    enabled: perfil?.papel === "admin",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("auditoria")
+        .select("*")
+        .order("criado_em", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      const ids = [...new Set((data ?? []).map((a) => a.usuario_id).filter(Boolean))] as string[];
+      const { data: perfis } = ids.length
+        ? await supabase.from("profiles").select("id, nome").in("id", ids)
+        : { data: [] as { id: string; nome: string }[] };
+      const nomes = new Map((perfis ?? []).map((p) => [p.id, p.nome]));
+      return (data ?? []).map((a) => ({ ...a, nome: a.usuario_id ? nomes.get(a.usuario_id) ?? "—" : "Sistema" }));
+    },
+  });
+
+  async function trocarAtivo(userId: string, ativo: boolean) {
+    const r = await alterarAtivo({ data: { userId, ativo } });
+    if (!r.ok) {
+      toast.error(r.erro ?? "Não foi possível salvar.");
+      return;
+    }
+    toast.success(ativo ? "Acesso reativado." : "Acesso desativado. O histórico foi mantido.");
+    queryClient.invalidateQueries({ queryKey: ["equipe"] });
+    queryClient.invalidateQueries({ queryKey: ["auditoria"] });
+  }
 
   if (isLoading) return <Skeleton className="h-72 w-full rounded-2xl" />;
   if (!perfil?.papel || perfil.papel === "servidor") {
@@ -165,10 +197,18 @@ function PaginaEquipe() {
             <ul className="mt-3 divide-y divide-border/60">
               {(membros.data ?? []).map((m) => (
                 <li key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                  <span className="font-semibold">{m.nome}</span>
-                  <span className="text-muted-foreground">
-                    {ROTULO_PAPEL[m.role]}
-                    {m.secretaria ? ` · ${SECRETARIAS[m.secretaria] ?? m.secretaria}` : ""}
+                  <span className={m.ativo ? "font-semibold" : "font-semibold text-muted-foreground line-through"}>{m.nome}</span>
+                  <span className="flex items-center gap-3 text-muted-foreground">
+                    <span>
+                      {ROTULO_PAPEL[m.role]}
+                      {m.secretaria ? ` · ${SECRETARIAS[m.secretaria] ?? m.secretaria}` : ""}
+                      {!m.ativo ? " · Inativo" : ""}
+                    </span>
+                    {m.user_id !== perfil.id && (admin || m.role === "servidor") ? (
+                      <Button size="sm" variant="outline" onClick={() => trocarAtivo(m.user_id, !m.ativo)}>
+                        {m.ativo ? "Desativar" : "Reativar"}
+                      </Button>
+                    ) : null}
                   </span>
                 </li>
               ))}
@@ -176,6 +216,33 @@ function PaginaEquipe() {
           )}
         </div>
       </Revelar>
+      {admin ? (
+        <Revelar atraso={240}>
+          <div className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur-sm card-suave">
+            <h2 className="text-lg font-bold">Registro de auditoria</h2>
+            <p className="text-xs text-muted-foreground">Últimas 50 ações administrativas.</p>
+            <ul className="mt-3 divide-y divide-border/60 text-sm">
+              {(auditoria.data ?? []).map((a) => {
+                const d = a.detalhes as Record<string, unknown>;
+                const descricao =
+                  a.acao === "alterar_chamado"
+                    ? `alterou o chamado ${String(d["protocolo"] ?? "")}`
+                    : a.acao === "encaminhar_chamado"
+                      ? `encaminhou chamado para ${SECRETARIAS[String(d["para"])] ?? d["para"]}`
+                      : a.acao === "insert_papel"
+                        ? `cadastrou membro (${ROTULO_PAPEL[String(d["role"])] ?? d["role"]})`
+                        : `alterou acesso de membro (${d["ativo"] ? "ativo" : "inativo"})`;
+                return (
+                  <li key={a.id} className="flex flex-wrap justify-between gap-2 py-2">
+                    <span><strong>{a.nome}</strong> {descricao}</span>
+                    <span className="text-xs text-muted-foreground">{formatarData(a.criado_em)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </Revelar>
+      ) : null}
     </div>
   );
 }

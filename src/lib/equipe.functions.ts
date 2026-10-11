@@ -61,3 +61,46 @@ export const criarMembroEquipe = createServerFn({ method: "POST" })
     if (erroPapel) return { ok: false, erro: "Conta criada, mas o papel não foi salvo." };
     return { ok: true, erro: null };
   });
+
+export const alterarAtivoMembro = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((dados: unknown) =>
+    z.object({ userId: z.string().uuid(), ativo: z.boolean() }).parse(dados),
+  )
+  .handler(async ({ data, context }) => {
+    if (data.userId === context.userId) {
+      return { ok: false, erro: "Você não pode desativar a própria conta." };
+    }
+    const { data: meu } = await context.supabase
+      .from("user_roles")
+      .select("role, secretaria, ativo")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!meu?.ativo || meu.role === "servidor") {
+      return { ok: false, erro: "Você não tem permissão para esta ação." };
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: alvo } = await supabaseAdmin
+      .from("user_roles")
+      .select("role, secretaria")
+      .eq("user_id", data.userId)
+      .maybeSingle();
+    if (!alvo) return { ok: false, erro: "Membro não encontrado." };
+    if (meu.role === "gestor" && (alvo.role !== "servidor" || alvo.secretaria !== meu.secretaria)) {
+      return { ok: false, erro: "Gestores só gerenciam servidores da própria secretaria." };
+    }
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .update({ ativo: data.ativo, criado_por: context.userId })
+      .eq("user_id", data.userId);
+    if (error) return { ok: false, erro: "Não foi possível salvar agora." };
+    if (!data.ativo) {
+      // Tira o servidor dos chamados abertos para que voltem à fila da secretaria
+      await supabaseAdmin
+        .from("ocorrencias")
+        .update({ atribuido_a: null })
+        .eq("atribuido_a", data.userId)
+        .not("status", "in", "(resolvido,cancelado,indeferido)");
+    }
+    return { ok: true, erro: null };
+  });

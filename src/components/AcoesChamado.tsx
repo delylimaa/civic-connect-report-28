@@ -58,14 +58,14 @@ export function AcoesChamado({
   }
 
   async function salvarStatus() {
-    if (exige && !justificativa.trim()) return toast.error("Informe a justificativa para esta situação.");
+    if (exige && !justificativa.trim()) { toast.error("Informe a justificativa para esta situação."); return; }
     setSalvando(true);
     const { error } = await supabase
       .from("ocorrencias")
       .update({ status, justificativa: justificativa.trim() || null })
       .eq("id", ocorrencia.id);
     setSalvando(false);
-    if (error) return toast.error(mensagemErro(error));
+    if (error) { toast.error(mensagemErro(error)); return; }
     toast.success("Situação atualizada. O morador foi notificado.");
     setJustificativa("");
     atualizar();
@@ -73,20 +73,20 @@ export function AcoesChamado({
 
   async function mudarCampo(campos: { prioridade?: Prioridade; atribuido_a?: string | null }) {
     const { error } = await supabase.from("ocorrencias").update(campos).eq("id", ocorrencia.id);
-    if (error) return toast.error(mensagemErro(error));
+    if (error) { toast.error(mensagemErro(error)); return; }
     toast.success(campos.prioridade ? "Prioridade e prazo atualizados." : "Responsável atualizado.");
     atualizar();
   }
 
   async function encaminhar() {
-    if (destino === ocorrencia.secretaria) return toast.error("Escolha outra secretaria.");
-    if (!motivo.trim()) return toast.error("Informe o motivo do encaminhamento.");
+    if (destino === ocorrencia.secretaria) { toast.error("Escolha outra secretaria."); return; }
+    if (!motivo.trim()) { toast.error("Informe o motivo do encaminhamento."); return; }
     const { error } = await supabase.rpc("encaminhar_chamado", {
       _id: ocorrencia.id,
       _secretaria: destino,
       _motivo: motivo.trim(),
     });
-    if (error) return toast.error(mensagemErro(error));
+    if (error) { toast.error(mensagemErro(error)); return; }
     toast.success(`Encaminhado para ${SECRETARIAS[destino]}.`);
     setMotivo("");
     atualizar();

@@ -37,31 +37,31 @@ export function DetalheChamado({
       .from("comentarios")
       .insert({ ocorrencia_id: ocorrencia.id, autor_id: usuarioId, texto: texto.trim().slice(0, 2000) });
     setEnviando(false);
-    if (error) return toast.error("Não foi possível enviar a mensagem.");
+    if (error) { toast.error("Não foi possível enviar a mensagem."); return; }
     setTexto("");
     queryClient.invalidateQueries({ queryKey: ["comentarios", ocorrencia.id] });
     queryClient.invalidateQueries({ queryKey: ["ocorrencias"] });
   }
 
   async function avaliar() {
-    if (!usuarioId || nota < 1) return toast.error("Escolha de 1 a 5 estrelas.");
+    if (!usuarioId || nota < 1) { toast.error("Escolha de 1 a 5 estrelas."); return; }
     const { error } = await supabase.from("avaliacoes").insert({
       ocorrencia_id: ocorrencia.id,
       usuario_id: usuarioId,
       nota,
       comentario: comentarioNota.trim() || null,
     });
-    if (error) return toast.error("Não foi possível salvar a avaliação.");
+    if (error) { toast.error("Não foi possível salvar a avaliação."); return; }
     toast.success("Obrigado pela avaliação!");
     queryClient.invalidateQueries({ queryKey: ["avaliacao", ocorrencia.id] });
   }
 
   async function reabrir() {
-    if (!motivo.trim()) return toast.error("Conte por que o problema continua.");
+    if (!motivo.trim()) { toast.error("Conte por que o problema continua."); return; }
     setReabrindo(true);
     const { error } = await supabase.rpc("reabrir_chamado", { _id: ocorrencia.id, _motivo: motivo.trim() });
     setReabrindo(false);
-    if (error) return toast.error("Não foi possível reabrir o chamado.");
+    if (error) { toast.error("Não foi possível reabrir o chamado."); return; }
     toast.success("Chamado reaberto. A equipe vai analisar de novo.");
     setMotivo("");
     queryClient.invalidateQueries({ queryKey: ["ocorrencias"] });

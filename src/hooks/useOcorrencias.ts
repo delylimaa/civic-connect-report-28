@@ -58,7 +58,7 @@ export type Comentario = {
   autor_id: string;
   texto: string;
   criado_em: string;
-  autor_nome?: string;
+  autor_nome?: string | undefined;
 };
 
 export function useComentarios(ocorrenciaId: string | null) {

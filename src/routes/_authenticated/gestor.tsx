@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePerfil } from "@/hooks/usePerfil";
+import { usePerfil, useSessao, ROTULO_PAPEL } from "@/hooks/usePerfil";
+import { AcoesChamado } from "@/components/AcoesChamado";
 import { useOcorrencias } from "@/hooks/useOcorrencias";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,7 +24,10 @@ import {
   rotuloOcorrencia,
   rotuloSecretaria,
   ORDEM_STATUS,
+  PRIORIDADES,
+  SECRETARIAS,
   STATUS,
+  atrasado,
   formatarData,
   type Categoria,
   type StatusOcorrencia,
@@ -73,6 +77,8 @@ function Cartao({
 function PainelGestor() {
   const navigate = useNavigate();
   const { data: perfil, isLoading: carregandoPerfil } = usePerfil();
+  const { session } = useSessao();
+  const [soMeus, setSoMeus] = useState(false);
   const { data, isLoading } = useOcorrencias();
   const queryClient = useQueryClient();
   const [categoria, setCategoria] = useState<Categoria | "todas">("todas");
@@ -106,7 +112,8 @@ function PainelGestor() {
         (1000 * 60 * 60 * 24),
     );
     const media = dias.length ? dias.reduce((a, b) => a + b, 0) / dias.length : 0;
-    return { total, percentual, media };
+    const atrasados = todas.filter((o) => atrasado(o)).length;
+    return { total, percentual, media, atrasados };
   }, [todas]);
 
   const grafico = useMemo(
@@ -123,9 +130,10 @@ function PainelGestor() {
       todas.filter(
         (o) =>
           (categoria === "todas" || o.categoria === categoria) &&
-          (status === "todos" || o.status === status),
+          (status === "todos" || o.status === status) &&
+          (!soMeus || o.atribuido_a === session?.user.id),
       ),
-    [todas, categoria, status],
+    [todas, categoria, status, soMeus, session],
   );
 
   if (carregandoPerfil) {
@@ -151,11 +159,13 @@ function PainelGestor() {
       <div className="animate-surgir">
         <h1 className="text-2xl font-extrabold md:text-3xl">Painel de gestão</h1>
         <p className="mt-1 text-muted-foreground">
-          Visão geral da cidade e atualização da situação de cada chamado.
+          {perfil.papel === "admin"
+            ? "Visão de todas as secretarias do município."
+            : `${ROTULO_PAPEL[perfil.papel ?? "servidor"]} · ${SECRETARIAS[perfil.secretaria ?? ""] ?? ""}`}
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Cartao
           titulo="Chamados recebidos"
           valor={<NumeroAnimado valor={metricas.total} />}
@@ -172,6 +182,12 @@ function PainelGestor() {
           atraso={220}
           valor={<NumeroAnimado valor={metricas.media} decimais={1} sufixo=" dias" />}
           ajuda="Do registro até a solução"
+        />
+        <Cartao
+          titulo="Prazo vencido"
+          atraso={330}
+          valor={<NumeroAnimado valor={metricas.atrasados} />}
+          ajuda="Chamados abertos fora do prazo"
         />
       </div>
 
@@ -255,6 +271,11 @@ function PainelGestor() {
           </label>
         </div>
 
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" checked={soMeus} onChange={(e) => setSoMeus(e.target.checked)} className="size-4 accent-[var(--primary)]" />
+          Mostrar só os chamados atribuídos a mim
+        </label>
+
         {isLoading ? (
           <div className="space-y-3">
             <Skeleton className="h-28 w-full rounded-xl" />
@@ -279,6 +300,21 @@ function PainelGestor() {
                     className="size-20 shrink-0 rounded-lg"
                   />
                   <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-accent">
+                      {o.protocolo}
+                      <span className="rounded-full bg-muted/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        Prioridade {PRIORIDADES[o.prioridade]?.rotulo ?? "Média"}
+                      </span>
+                      {atrasado(o) ? (
+                        <span className="rounded-full bg-destructive/20 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+                          Prazo vencido
+                        </span>
+                      ) : o.prazo ? (
+                        <span className="text-[11px] font-medium text-muted-foreground">
+                          Prazo: {new Date(o.prazo).toLocaleDateString("pt-BR")}
+                        </span>
+                      ) : null}
+                    </p>
                     <p className="truncate font-semibold">{o.titulo}</p>
                     <p className="text-xs text-muted-foreground">
                       {rotuloOcorrencia(o)} · {formatarData(o.criado_em)}
@@ -294,28 +330,7 @@ function PainelGestor() {
                     <BadgeStatus status={o.status} className="mt-2" />
                   </div>
                 </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Mudar situação:
-                  </span>
-                  <Select
-                    value={o.status}
-                    onValueChange={(valor) =>
-                      alterar.mutate({ id: o.id, novo: valor as StatusOcorrencia })
-                    }
-                  >
-                    <SelectTrigger className="h-9 w-48" aria-label={`Situação de ${o.titulo}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ORDEM_STATUS.map((chave) => (
-                        <SelectItem key={chave} value={chave}>
-                          {STATUS[chave].rotulo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <AcoesChamado ocorrencia={o} papel={perfil.papel ?? "servidor"} usuarioId={session?.user.id ?? null} />
               </li>
             ))}
           </ul>

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronDown, PlusCircle } from "lucide-react";
-import { useHistorico, useOcorrencias } from "@/hooks/useOcorrencias";
+import { useOcorrencias } from "@/hooks/useOcorrencias";
+import { useSessao } from "@/hooks/usePerfil";
+import { DetalheChamado } from "@/components/DetalheChamado";
 import { BadgeStatus } from "@/components/BadgeStatus";
 import { FotoOcorrencia } from "@/components/FotoOcorrencia";
-import { TimelineStatus } from "@/components/TimelineStatus";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Revelar } from "@/components/Revelar";
@@ -21,14 +22,15 @@ export const Route = createFileRoute("/_authenticated/chamados")({
       },
       { property: "og:title", content: "Meus chamados — Alerta Cidadão" },
       { property: "og:description", content: "Histórico completo de cada chamado registrado." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Chamados,
 });
 
-function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atraso?: number }) {
-  const [aberto, setAberto] = useState(false);
-  const { data: historico, isLoading } = useHistorico(aberto ? ocorrencia.id : null);
+function CardChamado({ ocorrencia, atraso = 0, usuarioId }: { ocorrencia: Ocorrencia; atraso?: number; usuarioId: string | null }) {
+  const [aberto, setAberto] = useState(ocorrencia.status === "aguardando_cidadao");
 
   return (
     <Revelar
@@ -43,6 +45,7 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
           className="size-24 shrink-0 rounded-xl"
         />
         <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold tracking-wide text-accent">{ocorrencia.protocolo}</p>
           <p className="font-semibold">{ocorrencia.titulo}</p>
           <p className="text-xs text-muted-foreground">
             {rotuloOcorrencia(ocorrencia)} · {formatarData(ocorrencia.criado_em)}
@@ -62,7 +65,7 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
         aria-expanded={aberto}
         className="flex w-full items-center justify-between border-t border-border px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-surface"
       >
-        Ver andamento
+        {ocorrencia.status === "aguardando_cidadao" ? "Responder à prefeitura" : "Ver andamento e mensagens"}
         <ChevronDown
           className={cn("size-4 transition-transform", aberto && "rotate-180")}
           aria-hidden
@@ -71,7 +74,7 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
 
       {aberto ? (
         <div className="animate-abrir overflow-hidden border-t border-border bg-surface/50 p-4">
-          <TimelineStatus historico={historico ?? []} carregando={isLoading} />
+          <DetalheChamado ocorrencia={ocorrencia} souDono usuarioId={usuarioId} />
         </div>
       ) : null}
     </Revelar>
@@ -80,7 +83,9 @@ function CardChamado({ ocorrencia, atraso = 0 }: { ocorrencia: Ocorrencia; atras
 
 function Chamados() {
   const { data, isLoading } = useOcorrencias();
-  const lista = data ?? [];
+  const { session } = useSessao();
+  const usuarioId = session?.user.id ?? null;
+  const lista = (data ?? []).filter((o) => o.usuario_id === usuarioId);
 
   return (
     <div className="space-y-6">
@@ -115,7 +120,7 @@ function Chamados() {
       ) : (
         <div className="space-y-3">
           {lista.map((o, indice) => (
-            <CardChamado key={o.id} ocorrencia={o} atraso={Math.min(indice, 6) * 90} />
+            <CardChamado key={o.id} ocorrencia={o} usuarioId={usuarioId} atraso={Math.min(indice, 6) * 90} />
           ))}
         </div>
       )}
